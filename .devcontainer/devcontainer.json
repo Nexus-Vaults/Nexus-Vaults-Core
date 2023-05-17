@@ -19,7 +19,7 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"nomicfoundation.hardhat-solidity"
+				"juanblanco.solidity"
 			]
 		}
 	}

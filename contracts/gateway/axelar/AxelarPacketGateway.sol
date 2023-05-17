@@ -1,22 +1,20 @@
 //SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.18;
 
-import "../IPacketGateway.sol";
-import "../INexusGateway.sol";
-import "./AxelarChainResolver.sol";
+import {AxelarChainResolver} from './AxelarChainResolver.sol';
+import {BaseNexusGateway} from '../BaseNexusGateway.sol';
 
-import "@axelar-network/axelar-cgp-solidity/contracts/interfaces/IAxelarGateway.sol";
-import "@axelar-network/axelar-cgp-solidity/contracts/interfaces/IAxelarGasService.sol";
-import "@axelar-network/axelar-gmp-sdk-solidity/contracts/executable/AxelarExecutable.sol";
+import {IAxelarGateway} from '@axelar-network/axelar-cgp-solidity/contracts/interfaces/IAxelarGateway.sol';
+import {IAxelarGasService} from '@axelar-network/axelar-cgp-solidity/contracts/interfaces/IAxelarGasService.sol';
+import {AxelarExecutable} from '@axelar-network/axelar-gmp-sdk-solidity/contracts/executable/AxelarExecutable.sol';
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Address.sol";
+import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
+import {Address} from '@openzeppelin/contracts/utils/Address.sol';
 
-contract AxelarPacketGateway is
+abstract contract AxelarPacketGateway is
+  BaseNexusGateway,
   AxelarExecutable,
-  AxelarChainResolver,
-  IPacketGateway,
-  Ownable
+  AxelarChainResolver
 {
   using Address for address;
 
@@ -24,44 +22,33 @@ contract AxelarPacketGateway is
   error UnAuthorizedSender(address expected, address actual);
   error UnAuthorizedSourceAddress();
 
-  IAxelarGateway private AxelarGateway;
-  IAxelarGasService private AxelarGasService;
-
-  INexusGateway private NexusGateway;
+  IAxelarGasService public immutable AxelarGasService;
 
   constructor(
     IAxelarGateway axelarGateway,
-    IAxelarGasService axelarGasService,
-    INexusGateway nexusGateway
-  ) IAxelarExecutable(address(axelarGateway)) Ownable() {
+    IAxelarGasService axelarGasService
+  ) AxelarExecutable(address(axelarGateway)) {
     require(
       address(axelarGateway).isContract(),
-      "axelarGateway not a contract"
+      'axelarGateway not a contract'
     );
     require(
       address(axelarGasService).isContract(),
-      "axelarGasService not a contract"
+      'axelarGasService not a contract'
     );
-    require(address(nexusGateway).isContract(), "nexusGateway not a contract");
 
-    AxelarGateway = axelarGateway;
     AxelarGasService = axelarGasService;
-    NexusGateway = nexusGateway;
   }
 
-  function sendPacketTo(
+  function axelar_sendPacketTo(
     uint16 targetChainId,
     bytes memory packetBytes
-  ) external payable {
-    if (msg.sender != address(NexusGateway)) {
-      revert UnAuthorizedSender(address(NexusGateway), msg.sender);
-    }
-
+  ) internal {
     (string memory chainName, string memory gatewayAddress) = resolveChainById(
       targetChainId
     );
 
-    AxelarGateway.callContract(chainName, gatewayAddress, packetBytes);
+    gateway.callContract(chainName, gatewayAddress, packetBytes);
 
     if (msg.value > 0) {
       AxelarGasService.payNativeGasForContractCall{value: msg.value}(
@@ -75,8 +62,8 @@ contract AxelarPacketGateway is
   }
 
   function _execute(
-    string memory sourceChain,
-    string memory sourceAddress,
+    string calldata sourceChain,
+    string calldata sourceAddress,
     bytes calldata payload
   ) internal override {
     (uint16 chainId, bytes32 gatewayAddressHash) = resolveChainByName(
@@ -87,45 +74,16 @@ contract AxelarPacketGateway is
       revert UnAuthorizedSourceAddress();
     }
 
-    NexusGateway.handlePacket(chainId, payload);
+    _handlePacket(chainId, payload);
   }
 
   function _executeWithToken(
-    string memory,
-    string memory,
+    string calldata,
+    string calldata,
     bytes calldata,
-    string memory,
+    string calldata,
     uint256
   ) internal pure override {
     revert CallWithTokenNotAllowed();
-  }
-
-  function addChain(
-    uint16 chainId,
-    string calldata chainName,
-    string calldata gatewayAddress
-  ) external onlyOwner {
-    _addChain(chainId, chainName, gatewayAddress);
-  }
-
-  function removeChain(
-    uint16 chainId,
-    string calldata chainName
-  ) external onlyOwner {
-    _removeChain(chainId, chainName);
-  }
-
-  function updateChainName(
-    uint16 chainId,
-    string calldata chainName
-  ) external onlyOwner {
-    _updateChainName(chainId, chainName);
-  }
-
-  function updateChainGatewayAddress(
-    uint16 chainId,
-    string calldata gatewayAddress
-  ) external onlyOwner {
-    _updateChainGatewayAddress(chainId, gatewayAddress);
   }
 }

@@ -1,4 +1,7 @@
 //SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.18;
 
-contract Nexus {}
+import {Diamond} from '../diamond/Diamond.sol';
+import {INexus} from './INexus.sol';
+
+contract Nexus is Diamond, INexus {}

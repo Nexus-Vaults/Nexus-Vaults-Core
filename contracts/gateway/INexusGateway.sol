@@ -1,15 +1,8 @@
 //SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.18;
 
 interface INexusGateway {
-  function relayPacket(
-    uint16 targetChainId,
-    uint8 messageType,
-    bytes memory innerPacketBytes
-  ) external payable;
+  function isReady() external view returns (bool isReady);
 
-  function handlePacket(
-    uint16 senderChainId,
-    bytes memory packetBytes
-  ) external payable;
+  function sendPacketTo(uint16 chainId, bytes memory payload) external payable;
 }

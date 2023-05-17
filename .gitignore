@@ -8,4 +8,7 @@ typechain-types
 # Hardhat files
 cache
 artifacts
+bin
 
+# SolC compiler
+soljson-*

@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.18;
 
 abstract contract StringToAddress {
   function toAddress(string memory _a) internal pure returns (address) {
@@ -22,11 +22,11 @@ abstract contract StringToAddress {
 abstract contract AddressToString {
   function toString(address a) internal pure returns (string memory) {
     bytes memory data = abi.encodePacked(a);
-    bytes memory characters = "0123456789abcdef";
+    bytes memory characters = '0123456789abcdef';
     bytes memory byteString = new bytes(2 + data.length * 2);
 
-    byteString[0] = "0";
-    byteString[1] = "x";
+    byteString[0] = '0';
+    byteString[1] = 'x';
 
     for (uint256 i; i < data.length; ++i) {
       byteString[2 + i * 2] = characters[uint256(uint8(data[i] >> 4))];

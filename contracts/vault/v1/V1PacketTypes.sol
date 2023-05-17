@@ -1,4 +1,7 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-contract NexusFactory {}
+enum V1PacketTypes {
+  Empty,
+  CreateVault
+}
