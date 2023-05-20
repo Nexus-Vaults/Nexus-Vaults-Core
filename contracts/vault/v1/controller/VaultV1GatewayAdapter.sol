@@ -1,6 +1,7 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
+import {BaseVaultV1Controller} from './BaseVaultV1Controller.sol';
 import {INexusGateway} from '../../../gateway/INexusGateway.sol';
 import {V1PacketTypes} from '../V1PacketTypes.sol';
 import {IVaultGatewayAdapater} from '../../IVaultGatewayAdapater.sol';
@@ -21,9 +22,9 @@ abstract contract VaultV1GatewayAdapter is IVaultGatewayAdapater {
 
     (
       V1PacketTypes packetType,
-      int routingVersion,
+      uint16 routingVersion,
       bytes memory innerPayload
-    ) = abi.decode(payload, (V1PacketTypes, int, bytes));
+    ) = abi.decode(payload, (V1PacketTypes, uint16, bytes));
 
     assert(packetType != V1PacketTypes.Empty);
 
@@ -35,7 +36,7 @@ abstract contract VaultV1GatewayAdapter is IVaultGatewayAdapater {
   function _handlePacket(
     uint16 senderChainId,
     V1PacketTypes packetType,
-    int routingVersion,
+    uint16 routingVersion,
     bytes memory payload
   ) internal virtual;
 }
