@@ -4,11 +4,12 @@ pragma solidity ^0.8.18;
 import '../../../diamond/IDiamondFacet.sol';
 import '../controller/IVaultV1Controller.sol';
 import '../../../diamond/LibDiamond.sol';
+import './IVaultV1Facet.sol';
 
 error MustBeDelegateCall();
 error MustBeContractOwner();
 
-contract VaultV1Facet is IDiamondFacet {
+contract VaultV1Facet is IDiamondFacet, IVaultV1Facet {
   bytes32 constant VAULTV1_STORAGE_POSITION =
     keccak256('diamond.standard.vaultv1.storage');
 
