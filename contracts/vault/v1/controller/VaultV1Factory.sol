@@ -10,7 +10,7 @@ error VaultAtIdAlreadyExists(bytes32 nexusId, uint256 vaultId);
 abstract contract VaultV1Factory is BaseVaultV1Controller {
   event VaultDeployed(
     bytes32 indexed nexusId,
-    uint256 indexed vaultId,
+    uint32 indexed vaultId,
     address indexed vaultAddress
   );
 
@@ -18,14 +18,14 @@ abstract contract VaultV1Factory is BaseVaultV1Controller {
 
   function _makeContractSalt(
     bytes32 nexusId,
-    uint256 vaultId
+    uint32 vaultId
   ) internal pure returns (bytes32) {
     return keccak256(abi.encodePacked(FACTORY_SALT, nexusId, vaultId));
   }
 
   function _deployVault(
     bytes32 nexusId,
-    uint256 vaultId,
+    uint32 vaultId,
     uint16 routingVersion
   ) internal {
     if (nexusVaults[nexusId].vaults[vaultId].addr != address(0)) {

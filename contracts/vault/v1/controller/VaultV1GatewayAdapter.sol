@@ -7,10 +7,11 @@ import {V1PacketTypes} from '../V1PacketTypes.sol';
 import {IVaultGatewayAdapater} from '../../IVaultGatewayAdapater.sol';
 
 error SenderNotApprovedGateway();
+error UndefinedRoutingVersion();
 
 abstract contract VaultV1GatewayAdapter is IVaultGatewayAdapater {
   mapping(INexusGateway => bool) public gatewayApprovals;
-  mapping(int => INexusGateway) public routingVersions;
+  mapping(uint16 => INexusGateway) public gateways;
 
   function handlePacket(
     uint16 senderChainId,
@@ -31,7 +32,21 @@ abstract contract VaultV1GatewayAdapter is IVaultGatewayAdapater {
     _handlePacket(senderChainId, packetType, routingVersion, innerPayload);
   }
 
-  function sendPacket() internal {}
+  function _sendPacket(
+    uint16 destinationChainId,
+    V1PacketTypes packetType,
+    uint16 routingVersion,
+    bytes memory innerPayload
+  ) internal {
+    if (address(gateways[routingVersion]) == address(0)) {
+      revert UndefinedRoutingVersion();
+    }
+
+    gateways[routingVersion].sendPacketTo{value: msg.value}(
+      destinationChainId,
+      abi.encode(packetType, routingVersion, innerPayload)
+    );
+  }
 
   function _handlePacket(
     uint16 senderChainId,

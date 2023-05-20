@@ -6,7 +6,7 @@ error VaultDoesNotExist(bytes32 nexusId, uint256 vaultId);
 abstract contract BaseVaultV1Controller {
   struct NexusRecord {
     mapping(uint256 => VaultRecord) vaults;
-    uint256[] vaultIds;
+    uint32[] vaultIds;
   }
   struct VaultRecord {
     address addr;
@@ -15,7 +15,7 @@ abstract contract BaseVaultV1Controller {
 
   event VaultRoutingVersionUpdated(
     bytes32 indexed nexusId,
-    uint256 indexed vaultId,
+    uint32 indexed vaultId,
     uint16 previousRoutingVersion,
     uint16 currentRoutingVersion
   );
@@ -24,13 +24,13 @@ abstract contract BaseVaultV1Controller {
 
   function getVaultIds(
     bytes32 nexusId
-  ) external view returns (uint256[] memory) {
+  ) external view returns (uint32[] memory) {
     return nexusVaults[nexusId].vaultIds;
   }
 
   function getVault(
     bytes32 nexusId,
-    uint256 vaultId
+    uint32 vaultId
   ) external view returns (VaultRecord memory) {
     VaultRecord memory vault = nexusVaults[nexusId].vaults[vaultId];
 
@@ -56,7 +56,7 @@ abstract contract BaseVaultV1Controller {
 
   function _setVaultRoutingVersion(
     bytes32 nexusId,
-    uint256 vaultId,
+    uint32 vaultId,
     uint16 routingVersion
   ) internal {
     emit VaultRoutingVersionUpdated(

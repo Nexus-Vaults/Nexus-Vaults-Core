@@ -8,6 +8,7 @@ import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 error FacetNotAvailable();
 error FeeTransferFailed();
 
+//ToDo: Make ERC1155
 contract FacetCatalog is IFacetCatalog, Ownable {
   struct FacetOffering {
     bool available;
@@ -28,6 +29,17 @@ contract FacetCatalog is IFacetCatalog, Ownable {
   constructor(IERC20 _feeToken, address treasuryAddress) {
     _transferOwnership(treasuryAddress);
     feeToken = _feeToken;
+  }
+
+  function hasPurchased(
+    address user,
+    address facetAddress
+  ) external view returns (bool) {
+    if (!offerings[facetAddress].available) {
+      revert FacetNotAvailable();
+    }
+
+    return offerings[facetAddress].hasBought[user];
   }
 
   function purchaseFacet(address facetAddress) external {
