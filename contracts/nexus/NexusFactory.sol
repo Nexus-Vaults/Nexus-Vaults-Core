@@ -3,22 +3,21 @@ pragma solidity ^0.8.18;
 
 import {Nexus} from './Nexus.sol';
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 
 error FeeTransferFailed();
-error MustBeTreasury();
 
-contract NexusFactory {
+contract NexusFactory is Ownable {
   Nexus[] public deployedContracts;
   mapping(address => bool) public hasDeployed;
 
   IERC20 public feeToken;
   uint256 public feeAmount;
-  address public immutable treasury;
 
   constructor(IERC20 token, uint256 tokenAmount, address treasuryAddress) {
+    _transferOwnership(treasuryAddress);
     feeToken = token;
     feeAmount = tokenAmount;
-    treasury = treasuryAddress;
   }
 
   function create(
