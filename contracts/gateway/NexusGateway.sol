@@ -4,7 +4,7 @@ pragma solidity ^0.8.18;
 import {BaseNexusGateway} from './BaseNexusGateway.sol';
 import {AxelarPacketGateway} from './axelar/AxelarPacketGateway.sol';
 import {INexusGateway} from './INexusGateway.sol';
-import {IVaultController} from '../vault/IVaultController.sol';
+import {IVaultGatewayAdapater} from '../vault/IVaultGatewayAdapater.sol';
 
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 import {IERC165} from '@openzeppelin/contracts/utils/introspection/IERC165.sol';
@@ -30,17 +30,17 @@ contract NexusGateway is
   }
 
   uint16 public currentChainId;
-  IVaultController public vaultController;
+  IVaultGatewayAdapater public vaultGatewayAdapater;
   mapping(uint16 => RouteType) public routeTypes;
 
   constructor(
     uint16 chainId,
-    IVaultController controller,
+    IVaultGatewayAdapater adapter,
     IAxelarGateway axelarGateway,
     IAxelarGasService axelarGasService
   ) AxelarPacketGateway(axelarGateway, axelarGasService) {
     currentChainId = chainId;
-    vaultController = controller;
+    vaultGatewayAdapater = adapter;
   }
 
   struct AxelarRoute {
@@ -103,7 +103,7 @@ contract NexusGateway is
       revert NotInitialized();
     }
 
-    vaultController.handlePacket(sourceChainId, message);
+    vaultGatewayAdapater.handlePacket(sourceChainId, message);
   }
 
   function isReady() public view returns (bool) {
