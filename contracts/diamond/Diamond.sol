@@ -14,18 +14,14 @@ import {LibDiamond} from './LibDiamond.sol';
 
 // When no function exists for function called
 error FunctionNotFound(bytes4 _functionSelector);
-error MustBeOwner(address owner, address sender);
 error TargetMustBeFacet(address target);
 
 error CannotInstallSelectorThatAlreadyExists(bytes4 selector);
 
 contract Diamond is ERC165Checker {
-  function installFacet(address facetAddress) external {
+  function _installFacet(address facetAddress) internal {
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
 
-    if (msg.sender != ds.contractOwner) {
-      revert MustBeOwner(ds.contractOwner, msg.sender);
-    }
     if (
       !_supportsERC165Interface(facetAddress, type(IDiamondFacet).interfaceId)
     ) {
