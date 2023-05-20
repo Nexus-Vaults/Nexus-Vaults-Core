@@ -22,13 +22,13 @@ contract NexusFactory is Ownable {
 
   function create(
     string calldata name,
-    address owner
+    address nexusOwner
   ) external returns (address) {
-    if (!feeToken.transferFrom(msg.sender, treasury, feeAmount)) {
+    if (!feeToken.transferFrom(msg.sender, owner(), feeAmount)) {
       revert FeeTransferFailed();
     }
 
-    Nexus nexus = new Nexus(name, owner);
+    Nexus nexus = new Nexus(name, nexusOwner);
 
     deployedContracts.push(nexus);
     hasDeployed[address(nexus)] = true;
@@ -36,11 +36,7 @@ contract NexusFactory is Ownable {
     return address(nexus);
   }
 
-  function setFees(IERC20 token, uint256 amt) external {
-    if (msg.sender != treasury) {
-      revert MustBeTreasury();
-    }
-
+  function setFees(IERC20 token, uint256 amt) external onlyOwner {
     feeToken = token;
     feeAmount = amt;
   }
