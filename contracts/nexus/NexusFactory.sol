@@ -9,7 +9,7 @@ error MustBeTreasury();
 
 contract NexusFactory {
   Nexus[] public deployedContracts;
-  mapping(address => bool) private deployedAddresses;
+  mapping(address => bool) public hasDeployed;
 
   IERC20 public feeToken;
   uint256 public feeAmount;
@@ -32,13 +32,9 @@ contract NexusFactory {
     Nexus nexus = new Nexus(name, owner);
 
     deployedContracts.push(nexus);
-    deployedAddresses[address(nexus)] = true;
+    hasDeployed[address(nexus)] = true;
 
     return address(nexus);
-  }
-
-  function hasDeployed(address addr) external view returns (bool) {
-    return deployedAddresses[addr];
   }
 
   function setFees(IERC20 token, uint256 amt) external {
