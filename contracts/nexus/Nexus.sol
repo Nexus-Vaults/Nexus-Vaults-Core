@@ -46,7 +46,7 @@ contract Nexus is Diamond, INexus {
     }
   }
 
-  function _installFacetFromCatalog(
+  function installFacetFromCatalog(
     IFacetCatalog catalog,
     address facetAddress,
     FacetPayment calldata payment
@@ -62,7 +62,7 @@ contract Nexus is Diamond, INexus {
     _installFacet(facetAddress);
   }
 
-  function _batchInstallFacetFromCatalog(
+  function batchInstallFacetFromCatalog(
     IFacetCatalog catalog,
     address[] memory facetAddresses,
     FacetPayment[] calldata payments
