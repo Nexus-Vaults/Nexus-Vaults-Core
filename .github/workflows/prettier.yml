@@ -1,0 +1,22 @@
+name: Prettier
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  prettier:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install Prettier and run formatting check
+        run: |
+          npm install prettier
+          npx prettier --check .
