@@ -21,7 +21,10 @@ abstract contract IOUTokenModule {
     address gatewayAddress,
     string memory asset
   ) private pure returns (bytes32 tokenId) {
-    return keccak256(abi.encodePacked(vaultChainId, vaultId, gatewayAddress, asset));
+    return
+      keccak256(
+        abi.encodePacked(vaultChainId, vaultId, gatewayAddress, asset)
+      );
   }
 
   function _deployIOU(
@@ -32,7 +35,12 @@ abstract contract IOUTokenModule {
     address gatewayAddress,
     string memory asset
   ) private returns (IOUToken) {
-    bytes32 tokenId = _makeTokenId(vaultChainId, vaultId, gatewayAddress, asset);
+    bytes32 tokenId = _makeTokenId(
+      vaultChainId,
+      vaultId,
+      gatewayAddress,
+      asset
+    );
 
     IOUToken token = new IOUToken{salt: tokenId}(name, symbol);
 
@@ -60,12 +68,24 @@ abstract contract IOUTokenModule {
     address receiver,
     uint256 amount
   ) internal {
-    bytes32 tokenId = _makeTokenId(vaultChainId, vaultId, gatewayAddress, asset);
+    bytes32 tokenId = _makeTokenId(
+      vaultChainId,
+      vaultId,
+      gatewayAddress,
+      asset
+    );
 
     IOUToken token = recordToToken[tokenId];
 
     if (address(token) == address(0)) {
-      token = _deployIOU(asset, asset, vaultChainId, vaultId, gatewayAddress, asset);
+      token = _deployIOU(
+        asset,
+        asset,
+        vaultChainId,
+        vaultId,
+        gatewayAddress,
+        asset
+      );
     }
 
     token.mint(receiver, amount);
@@ -79,12 +99,24 @@ abstract contract IOUTokenModule {
     address from,
     uint256 amount
   ) internal {
-    bytes32 tokenId = _makeTokenId(vaultChainId, vaultId, gatewayAddress, asset);
+    bytes32 tokenId = _makeTokenId(
+      vaultChainId,
+      vaultId,
+      gatewayAddress,
+      asset
+    );
 
     IOUToken token = recordToToken[tokenId];
 
     if (address(token) == address(0)) {
-      token = _deployIOU(asset, asset, vaultChainId, vaultId, gatewayAddress, asset);
+      token = _deployIOU(
+        asset,
+        asset,
+        vaultChainId,
+        vaultId,
+        gatewayAddress,
+        asset
+      );
     }
 
     token.burn(from, amount);

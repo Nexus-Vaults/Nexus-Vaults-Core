@@ -16,7 +16,13 @@ error NotInitialized();
 error RouteAlreadyDefined(uint16 chainId);
 error NoRouteDefined();
 
-contract NexusGateway is BaseNexusGateway, AxelarPacketGateway, Ownable, IERC165, INexusGateway {
+contract NexusGateway is
+  BaseNexusGateway,
+  AxelarPacketGateway,
+  Ownable,
+  IERC165,
+  INexusGateway
+{
   enum RouteType {
     None,
     Axelar,
@@ -48,12 +54,16 @@ contract NexusGateway is BaseNexusGateway, AxelarPacketGateway, Ownable, IERC165
     return owner() == address(0);
   }
 
-  function initialize(AxelarRoute[] calldata axelarRoutes) external onlyOwner {
+  function initialize(
+    AxelarRoute[] calldata axelarRoutes
+  ) external onlyOwner {
     _initializeAxelarRoutes(axelarRoutes);
     _transferOwnership(address(0));
   }
 
-  function _initializeAxelarRoutes(AxelarRoute[] calldata routes) internal {
+  function _initializeAxelarRoutes(
+    AxelarRoute[] calldata routes
+  ) internal {
     if (isReady()) {
       revert AlreadyInitialized();
     }
@@ -70,7 +80,10 @@ contract NexusGateway is BaseNexusGateway, AxelarPacketGateway, Ownable, IERC165
     }
   }
 
-  function sendPacketTo(uint16 chainId, bytes memory payload) external payable onlyOwner {
+  function sendPacketTo(
+    uint16 chainId,
+    bytes memory payload
+  ) external payable onlyOwner {
     if (!isReady()) {
       revert NotInitialized();
     }
@@ -91,7 +104,10 @@ contract NexusGateway is BaseNexusGateway, AxelarPacketGateway, Ownable, IERC165
     assert(false);
   }
 
-  function _handlePacket(uint16 sourceChainId, bytes memory message) internal override {
+  function _handlePacket(
+    uint16 sourceChainId,
+    bytes memory message
+  ) internal override {
     if (!isReady()) {
       revert NotInitialized();
     }
@@ -99,7 +115,9 @@ contract NexusGateway is BaseNexusGateway, AxelarPacketGateway, Ownable, IERC165
     vaultGatewayAdapater.handlePacket(sourceChainId, message);
   }
 
-  function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+  function supportsInterface(
+    bytes4 interfaceId
+  ) public view virtual override returns (bool) {
     return interfaceId == type(INexusGateway).interfaceId;
   }
 }

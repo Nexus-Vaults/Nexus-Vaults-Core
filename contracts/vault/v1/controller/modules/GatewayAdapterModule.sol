@@ -11,11 +11,19 @@ error GatewayAlreadyApproved();
 error SenderNotApprovedGateway();
 error TargetNotApprovedGateway();
 
-abstract contract GatewayAdapterModule is BaseVaultV1Controller, IVaultGatewayAdapater {
+abstract contract GatewayAdapterModule is
+  BaseVaultV1Controller,
+  IVaultGatewayAdapater
+{
   event GatewayApproved(address gatewayAddress);
 
   function addApprovedGateway(address gatewayAddress) external onlyOwner {
-    if (!_supportsERC165Interface(gatewayAddress, type(INexusGateway).interfaceId)) {
+    if (
+      !_supportsERC165Interface(
+        gatewayAddress,
+        type(INexusGateway).interfaceId
+      )
+    ) {
       revert IncompatibleGateway();
     }
     if (gateways[INexusGateway(gatewayAddress)]) {
@@ -26,19 +34,29 @@ abstract contract GatewayAdapterModule is BaseVaultV1Controller, IVaultGatewayAd
     emit GatewayApproved(gatewayAddress);
   }
 
-  function handlePacket(uint16 senderChainId, bytes calldata payload) external payable {
+  function handlePacket(
+    uint16 senderChainId,
+    bytes calldata payload
+  ) external payable {
     if (!gateways[INexusGateway(msg.sender)]) {
       revert SenderNotApprovedGateway();
     }
 
-    (V1PacketTypes packetType, bytes32 nexusId, bytes memory innerPayload) = abi.decode(
-      payload,
-      (V1PacketTypes, bytes32, bytes)
-    );
+    (
+      V1PacketTypes packetType,
+      bytes32 nexusId,
+      bytes memory innerPayload
+    ) = abi.decode(payload, (V1PacketTypes, bytes32, bytes));
 
     assert(packetType != V1PacketTypes.Empty);
 
-    _handlePacket(senderChainId, packetType, nexusId, msg.sender, innerPayload);
+    _handlePacket(
+      senderChainId,
+      packetType,
+      nexusId,
+      msg.sender,
+      innerPayload
+    );
   }
 
   function _sendPacket(

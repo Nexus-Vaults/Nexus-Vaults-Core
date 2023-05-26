@@ -8,7 +8,10 @@ error MustBeIOUTokenFactory(address factory, address sender);
 contract IOUToken is ERC20 {
   address public immutable factory;
 
-  constructor(string memory _name, string memory _symbol) ERC20(_name, _symbol) {
+  constructor(
+    string memory _name,
+    string memory _symbol
+  ) ERC20(_name, _symbol) {
     factory = msg.sender;
   }
 

@@ -20,7 +20,10 @@ contract NexusFactory is Ownable {
     feeAmount = tokenAmount;
   }
 
-  function create(string calldata name, address nexusOwner) external returns (address) {
+  function create(
+    string calldata name,
+    address nexusOwner
+  ) external returns (address) {
     if (!feeToken.transferFrom(msg.sender, owner(), feeAmount)) {
       revert FeeTransferFailed();
     }

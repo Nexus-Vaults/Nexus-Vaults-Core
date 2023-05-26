@@ -11,7 +11,11 @@ import {AxelarExecutable} from '@axelar-network/axelar-gmp-sdk-solidity/contract
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 import {Address} from '@openzeppelin/contracts/utils/Address.sol';
 
-abstract contract AxelarPacketGateway is BaseNexusGateway, AxelarExecutable, AxelarChainResolver {
+abstract contract AxelarPacketGateway is
+  BaseNexusGateway,
+  AxelarExecutable,
+  AxelarChainResolver
+{
   using Address for address;
 
   error CallWithTokenNotAllowed();
@@ -24,14 +28,26 @@ abstract contract AxelarPacketGateway is BaseNexusGateway, AxelarExecutable, Axe
     IAxelarGateway axelarGateway,
     IAxelarGasService axelarGasService
   ) AxelarExecutable(address(axelarGateway)) {
-    require(address(axelarGateway).isContract(), 'axelarGateway not a contract');
-    require(address(axelarGasService).isContract(), 'axelarGasService not a contract');
+    require(
+      address(axelarGateway).isContract(),
+      'axelarGateway not a contract'
+    );
+    require(
+      address(axelarGasService).isContract(),
+      'axelarGasService not a contract'
+    );
 
     AxelarGasService = axelarGasService;
   }
 
-  function axelar_sendPacketTo(uint16 targetChainId, bytes memory packetBytes) internal {
-    (string memory chainName, string memory gatewayAddress) = resolveChainById(targetChainId);
+  function axelar_sendPacketTo(
+    uint16 targetChainId,
+    bytes memory packetBytes
+  ) internal {
+    (
+      string memory chainName,
+      string memory gatewayAddress
+    ) = resolveChainById(targetChainId);
 
     gateway.callContract(chainName, gatewayAddress, packetBytes);
 
@@ -51,7 +67,9 @@ abstract contract AxelarPacketGateway is BaseNexusGateway, AxelarExecutable, Axe
     string calldata sourceAddress,
     bytes calldata payload
   ) internal override {
-    (uint16 chainId, bytes32 gatewayAddressHash) = resolveChainByName(sourceChain);
+    (uint16 chainId, bytes32 gatewayAddressHash) = resolveChainByName(
+      sourceChain
+    );
 
     if (keccak256(bytes(sourceAddress)) != gatewayAddressHash) {
       revert UnAuthorizedSourceAddress();

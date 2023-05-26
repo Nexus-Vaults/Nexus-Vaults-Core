@@ -10,7 +10,8 @@ error MustBeDelegateCall();
 error MustBeContractOwner();
 
 contract VaultV1Facet is IDiamondFacet, IVaultV1Facet {
-  bytes32 constant VAULTV1_STORAGE_POSITION = keccak256('diamond.standard.vaultv1.storage');
+  bytes32 constant VAULTV1_STORAGE_POSITION =
+    keccak256('diamond.standard.vaultv1.storage');
 
   struct VaultV1Storage {
     mapping(address => mapping(bytes32 => bool)) permissions;
@@ -38,7 +39,11 @@ contract VaultV1Facet is IDiamondFacet, IVaultV1Facet {
     _;
   }
 
-  function vaultV1Storage() internal pure returns (VaultV1Storage storage ds) {
+  function vaultV1Storage()
+    internal
+    pure
+    returns (VaultV1Storage storage ds)
+  {
     bytes32 position = VAULTV1_STORAGE_POSITION;
     assembly {
       ds.slot := position
@@ -58,7 +63,11 @@ contract VaultV1Facet is IDiamondFacet, IVaultV1Facet {
     address gatewayToAdd,
     address transmitUsing
   ) external onlyDelegateCall onlyDiamondOwner {
-    vaultController.addAcceptedGateway(chainId, gatewayToAdd, transmitUsing);
+    vaultController.addAcceptedGateway(
+      chainId,
+      gatewayToAdd,
+      transmitUsing
+    );
   }
 
   function getSelectors() external pure returns (bytes4[] memory) {

@@ -16,7 +16,12 @@ contract FacetCatalog is IFacetCatalog, Ownable {
     mapping(address => bool) hasBought;
   }
 
-  event FacetPurchased(address indexed nexus, address indexed facet, address token, uint256 amount);
+  event FacetPurchased(
+    address indexed nexus,
+    address indexed facet,
+    address token,
+    uint256 amount
+  );
 
   IERC20 public feeToken;
   mapping(address => FacetOffering) public offerings;
@@ -26,7 +31,10 @@ contract FacetCatalog is IFacetCatalog, Ownable {
     feeToken = _feeToken;
   }
 
-  function hasPurchased(address user, address facetAddress) external view returns (bool) {
+  function hasPurchased(
+    address user,
+    address facetAddress
+  ) external view returns (bool) {
     if (!offerings[facetAddress].available) {
       revert FacetNotAvailable();
     }
@@ -42,7 +50,13 @@ contract FacetCatalog is IFacetCatalog, Ownable {
     if (!offerings[facetAddress].available) {
       revert FacetNotAvailable();
     }
-    if (!feeToken.transferFrom(payer, owner(), offerings[facetAddress].feeAmount)) {
+    if (
+      !feeToken.transferFrom(
+        payer,
+        owner(),
+        offerings[facetAddress].feeAmount
+      )
+    ) {
       revert FeeTransferFailed();
     }
 

@@ -24,7 +24,10 @@ abstract contract BaseVaultV1Controller is ERC165Checker, Ownable {
     VaultV1 vault;
   }
 
-  event NexusAddAcceptedGateway(bytes32 indexed nexusId, address indexed gateway);
+  event NexusAddAcceptedGateway(
+    bytes32 indexed nexusId,
+    address indexed gateway
+  );
 
   mapping(bytes32 => NexusRecord) internal nexusVaults;
   mapping(INexusGateway => bool) public gateways;
@@ -44,13 +47,19 @@ abstract contract BaseVaultV1Controller is ERC165Checker, Ownable {
     _;
   }
 
-  function _enforceAcceptedGateway(bytes32 nexusId, address gatewayAddress) internal view {
+  function _enforceAcceptedGateway(
+    bytes32 nexusId,
+    address gatewayAddress
+  ) internal view {
     if (!nexusVaults[nexusId].acceptedGateways[gatewayAddress]) {
       revert GatewayNotAccepted(nexusId, gatewayAddress);
     }
   }
 
-  function _addAcceptedGatewayToNexus(bytes32 nexusId, address gatewayAddress) internal {
+  function _addAcceptedGatewayToNexus(
+    bytes32 nexusId,
+    address gatewayAddress
+  ) internal {
     emit NexusAddAcceptedGateway(nexusId, gatewayAddress);
 
     nexusVaults[nexusId].acceptedGateways[gatewayAddress] = true;

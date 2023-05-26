@@ -16,7 +16,10 @@ abstract contract VaultFactoryModule is BaseVaultV1Controller {
 
   bytes32 constant FACTORY_SALT = keccak256('VAULT_V1_FACTORY_SALT');
 
-  function _makeContractSalt(bytes32 nexusId, uint32 vaultId) internal pure returns (bytes32) {
+  function _makeContractSalt(
+    bytes32 nexusId,
+    uint32 vaultId
+  ) internal pure returns (bytes32) {
     return keccak256(abi.encodePacked(FACTORY_SALT, nexusId, vaultId));
   }
 
@@ -25,7 +28,9 @@ abstract contract VaultFactoryModule is BaseVaultV1Controller {
       revert VaultAtIdAlreadyExists(nexusId, vaultId);
     }
 
-    VaultV1 vault = new VaultV1{salt: _makeContractSalt(nexusId, vaultId)}(nexusId);
+    VaultV1 vault = new VaultV1{salt: _makeContractSalt(nexusId, vaultId)}(
+      nexusId
+    );
 
     VaultRecord storage vaultRecord = nexusVaults[nexusId].vaults[vaultId];
 

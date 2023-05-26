@@ -41,7 +41,13 @@ contract VaultV1Controller is
     bytes32 nexusId = keccak256(abi.encodePacked(msg.sender));
     bytes memory innerPayload = abi.encode(vaultId);
 
-    _sendPacket(chainId, V1PacketTypes.CreateVault, nexusId, transmitUsing, innerPayload);
+    _sendPacket(
+      chainId,
+      V1PacketTypes.CreateVault,
+      nexusId,
+      transmitUsing,
+      innerPayload
+    );
   }
 
   function addAcceptedGateway(
@@ -52,7 +58,13 @@ contract VaultV1Controller is
     bytes32 nexusId = keccak256(abi.encodePacked(msg.sender));
     bytes memory innerPayload = abi.encode(gatewayToAdd);
 
-    _sendPacket(chainId, V1PacketTypes.EnableGateway, nexusId, transmitUsing, innerPayload);
+    _sendPacket(
+      chainId,
+      V1PacketTypes.EnableGateway,
+      nexusId,
+      transmitUsing,
+      innerPayload
+    );
   }
 
   function _handlePacket(
