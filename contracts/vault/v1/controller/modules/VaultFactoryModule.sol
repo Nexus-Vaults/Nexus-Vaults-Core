@@ -40,8 +40,6 @@ abstract contract VaultFactoryModule is BaseVaultV1Controller {
 
     vaultRecord.isDefined = true;
     vaultRecord.vault = vault;
-    vaultRecord.primaryGateway = gatewayAddress;
-    vaultRecord.acceptedGateways[gatewayAddress] = true;
 
     nexusVaults[nexusId].vaultIds.push(vaultId);
 

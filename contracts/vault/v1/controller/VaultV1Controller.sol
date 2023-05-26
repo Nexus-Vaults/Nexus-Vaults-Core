@@ -16,9 +16,8 @@ import {StringToAddress, AddressToString} from "../../../utils/StringAddressUtil
 
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 
-error GatewayNotAllowedForVault(
+error GatewayNotAccepted(
   bytes32 nexusId,
-  uint32 vaultId,
   address gatewayAddress
 );
 
@@ -84,15 +83,15 @@ contract VaultV1Controller is
       return;
     }
     if (packetType == V1PacketTypes.EnableGateway) {
-      (bytes32 nexusId, string memory gatewayAddressRaw) = abi.decode(
+      (string memory addedGatewayAddressRaw) = abi.decode(
         payload,
-        (bytes32, string)
+        (string)
       );
 
-      address gatewayAddress = gatewayAddressRaw.toAddress();
+      address addedGatewayAddress = addedGatewayAddressRaw.toAddress();
 
       _enforceAcceptedGateway(nexusId, gatewayAddress);
-      _enableNexusRoutingVersion(nexusId, gatewayAddress);
+      _enableNexusRoutingVersion(nexusId, addedGatewayAddress);
     }
   }
 
@@ -103,7 +102,7 @@ contract VaultV1Controller is
     if (
       !nexusVaults[nexusId].acceptedGateways[gatewayAddress]
     ) {
-      revert GatewayNotAllowedForVault(nexusId, gatewayAddress);
+      revert GatewayNotAccepted(nexusId, gatewayAddress);
     }
   }
 }
