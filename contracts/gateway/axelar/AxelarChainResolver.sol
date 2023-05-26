@@ -15,41 +15,22 @@ abstract contract AxelarChainResolver {
 
   error InvalidChainId(uint16 chainId);
   error InvalidChainName(string chainName);
-  error ChainIdAlreadyConfigured(
-    uint16 chainId,
-    string currentName,
-    string proposedName
-  );
-  error ChainNameAlreadyConfigured(
-    string chainName,
-    uint16 currentChain,
-    uint16 proposedChain
-  );
+  error ChainIdAlreadyConfigured(uint16 chainId, string currentName, string proposedName);
+  error ChainNameAlreadyConfigured(string chainName, uint16 currentChain, uint16 proposedChain);
 
-  event ChainAdded(
-    uint16 indexed chain,
-    string chainName,
-    string gatewayAddress
-  );
+  event ChainAdded(uint16 indexed chain, string chainName, string gatewayAddress);
 
   mapping(uint16 => ChainNameRecord) public chainRecords;
   mapping(string => ChainRecord) public chains;
 
   function resolveChainById(
     uint16 chainId
-  )
-    public
-    view
-    returns (string memory chainName, string memory gatewayAddress)
-  {
+  ) public view returns (string memory chainName, string memory gatewayAddress) {
     if (!chainRecords[chainId].isConfigured) {
       revert InvalidChainId(chainId);
     }
 
-    return (
-      chainRecords[chainId].chainName,
-      chainRecords[chainId].gatewayAddress
-    );
+    return (chainRecords[chainId].chainName, chainRecords[chainId].gatewayAddress);
   }
 
   function resolveChainByName(
@@ -69,18 +50,10 @@ abstract contract AxelarChainResolver {
     string calldata gatewayAddress
   ) internal {
     if (chainRecords[chainId].isConfigured) {
-      revert ChainIdAlreadyConfigured(
-        chainId,
-        chainRecords[chainId].chainName,
-        chainName
-      );
+      revert ChainIdAlreadyConfigured(chainId, chainRecords[chainId].chainName, chainName);
     }
     if (chains[chainName].isConfigured) {
-      revert ChainNameAlreadyConfigured(
-        chainName,
-        chains[chainName].chainId,
-        chainId
-      );
+      revert ChainNameAlreadyConfigured(chainName, chains[chainName].chainId, chainId);
     }
 
     bytes32 gatewayAddressHash = keccak256(bytes(gatewayAddress));

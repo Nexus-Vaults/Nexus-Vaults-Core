@@ -32,16 +32,11 @@ interface IDiamondLoupe is IDiamondFacet {
 
   /// @notice Get all the facet addresses used by a diamond.
   /// @return facetAddresses_
-  function facetAddresses()
-    external
-    view
-    returns (address[] memory facetAddresses_);
+  function facetAddresses() external view returns (address[] memory facetAddresses_);
 
   /// @notice Gets the facet that supports the given selector.
   /// @dev If facet is not found return address(0).
   /// @param _functionSelector The function selector.
   /// @return facetAddress_ The facet address.
-  function facetAddress(
-    bytes4 _functionSelector
-  ) external view returns (address facetAddress_);
+  function facetAddress(bytes4 _functionSelector) external view returns (address facetAddress_);
 }

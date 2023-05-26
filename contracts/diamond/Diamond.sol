@@ -22,30 +22,23 @@ contract Diamond is ERC165Checker {
   function _installFacet(address facetAddress) internal {
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
 
-    if (
-      !_supportsERC165Interface(facetAddress, type(IDiamondFacet).interfaceId)
-    ) {
+    if (!_supportsERC165Interface(facetAddress, type(IDiamondFacet).interfaceId)) {
       revert TargetMustBeFacet(facetAddress);
     }
 
-    bytes4[] memory functionSelectors = IDiamondFacet(facetAddress)
-      .getSelectors();
+    bytes4[] memory functionSelectors = IDiamondFacet(facetAddress).getSelectors();
     uint16 selectorCount = uint16(ds.selectors.length);
 
-    for (
-      uint256 selectorIndex;
-      selectorIndex < functionSelectors.length;
-      selectorIndex++
-    ) {
+    for (uint256 selectorIndex; selectorIndex < functionSelectors.length; selectorIndex++) {
       bytes4 selector = functionSelectors[selectorIndex];
-      address oldFacetAddress = ds
-        .facetAddressAndSelectorPosition[selector]
-        .facetAddress;
+      address oldFacetAddress = ds.facetAddressAndSelectorPosition[selector].facetAddress;
       if (oldFacetAddress != address(0)) {
         revert CannotInstallSelectorThatAlreadyExists(selector);
       }
-      ds.facetAddressAndSelectorPosition[selector] = LibDiamond
-        .FacetAddressAndSelectorPosition(facetAddress, selectorCount);
+      ds.facetAddressAndSelectorPosition[selector] = LibDiamond.FacetAddressAndSelectorPosition(
+        facetAddress,
+        selectorCount
+      );
       ds.selectors.push(selector);
       selectorCount++;
     }

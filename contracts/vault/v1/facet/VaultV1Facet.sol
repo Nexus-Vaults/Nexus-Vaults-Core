@@ -10,8 +10,7 @@ error MustBeDelegateCall();
 error MustBeContractOwner();
 
 contract VaultV1Facet is IDiamondFacet, IVaultV1Facet {
-  bytes32 constant VAULTV1_STORAGE_POSITION =
-    keccak256('diamond.standard.vaultv1.storage');
+  bytes32 constant VAULTV1_STORAGE_POSITION = keccak256('diamond.standard.vaultv1.storage');
 
   struct VaultV1Storage {
     mapping(address => mapping(bytes32 => bool)) permissions;

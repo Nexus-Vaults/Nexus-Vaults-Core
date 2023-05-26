@@ -26,10 +26,7 @@ abstract contract GatewayAdapterModule is BaseVaultV1Controller, IVaultGatewayAd
     emit GatewayApproved(gatewayAddress);
   }
 
-  function handlePacket(
-    uint16 senderChainId,
-    bytes calldata payload
-  ) external payable {
+  function handlePacket(uint16 senderChainId, bytes calldata payload) external payable {
     if (!gateways[INexusGateway(msg.sender)]) {
       revert SenderNotApprovedGateway();
     }
