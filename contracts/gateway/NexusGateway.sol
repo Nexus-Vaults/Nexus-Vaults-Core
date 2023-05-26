@@ -29,18 +29,19 @@ contract NexusGateway is
     Wormhole
   }
 
-  uint16 public currentChainId;
-  IVaultGatewayAdapater public vaultGatewayAdapater;
+  uint16 public immutable currentChainId;
+  IVaultGatewayAdapater public immutable vaultGatewayAdapater;
+
   mapping(uint16 => RouteType) public routeTypes;
 
   constructor(
-    uint16 chainId,
-    IVaultGatewayAdapater adapter,
+    uint16 _currentChainId,
+    IVaultGatewayAdapater _vaultGatewayAdapater,
     IAxelarGateway axelarGateway,
     IAxelarGasService axelarGasService
   ) AxelarPacketGateway(axelarGateway, axelarGasService) {
-    currentChainId = chainId;
-    vaultGatewayAdapater = adapter;
+    currentChainId = _currentChainId;
+    vaultGatewayAdapater = _vaultGatewayAdapater;
   }
 
   struct AxelarRoute {
@@ -49,6 +50,10 @@ contract NexusGateway is
     string gatewayAddress;
   }
 
+  function isReady() public view returns (bool) {
+    return owner() == address(0);
+  }
+  
   function initialize(AxelarRoute[] calldata axelarRoutes) external onlyOwner {
     _initializeAxelarRoutes(axelarRoutes);
     _transferOwnership(address(0));
@@ -104,10 +109,6 @@ contract NexusGateway is
     }
 
     vaultGatewayAdapater.handlePacket(sourceChainId, message);
-  }
-
-  function isReady() public view returns (bool) {
-    return owner() == address(0);
   }
 
   function supportsInterface(

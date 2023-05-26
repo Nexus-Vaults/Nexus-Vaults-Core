@@ -6,11 +6,25 @@ import {INexusGateway} from '../../../../gateway/INexusGateway.sol';
 import {V1PacketTypes} from '../../V1PacketTypes.sol';
 import {IVaultGatewayAdapater} from '../../../IVaultGatewayAdapater.sol';
 
+error IncompatibleGateway();
+error GatewayAlreadyApproved();
 error SenderNotApprovedGateway();
-error UndefinedRoutingVersion();
+error TargetNotApprovedGateway();
 
-abstract contract GatewayAdapterModule is IVaultGatewayAdapater {
-  mapping(INexusGateway => bool) public gateways;
+abstract contract GatewayAdapterModule is BaseVaultV1Controller, IVaultGatewayAdapater {
+  event GatewayApproved(address gatewayAddress);
+
+  function addApprovedGateway(address gatewayAddress) external onlyOwner {
+    if (!_supportsERC165Interface(gatewayAddress, type(INexusGateway).interfaceId)) {
+      revert IncompatibleGateway();
+    }
+    if (gateways[INexusGateway(gatewayAddress)]) {
+      revert GatewayAlreadyApproved();
+    }
+
+    gateways[INexusGateway(gatewayAddress)] = true;
+    emit GatewayApproved(gatewayAddress);
+  }
 
   function handlePacket(
     uint16 senderChainId,
@@ -33,18 +47,19 @@ abstract contract GatewayAdapterModule is IVaultGatewayAdapater {
   function _sendPacket(
     uint16 destinationChainId,
     V1PacketTypes packetType,
+    bytes32 nexusId,
     address gatewayAddress,
     bytes memory innerPayload
   ) internal {
     INexusGateway gateway = INexusGateway(gatewayAddress);
 
     if (!gateways[gateway]) {
-      revert UndefinedRoutingVersion();
+      revert TargetNotApprovedGateway();
     }
 
     gateway.sendPacketTo{value: msg.value}(
       destinationChainId,
-      abi.encode(packetType, innerPayload)
+      abi.encode(packetType, nexusId, innerPayload)
     );
   }
 

@@ -25,8 +25,7 @@ abstract contract VaultFactoryModule is BaseVaultV1Controller {
 
   function _deployVault(
     bytes32 nexusId,
-    uint32 vaultId,
-    address gatewayAddress
+    uint32 vaultId
   ) internal {
     if (nexusVaults[nexusId].vaults[vaultId].isDefined) {
       revert VaultAtIdAlreadyExists(nexusId, vaultId);

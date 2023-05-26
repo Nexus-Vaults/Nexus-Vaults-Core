@@ -5,30 +5,26 @@ import {IVaultV1Controller} from './IVaultV1Controller.sol';
 import {V1PacketTypes} from '../V1PacketTypes.sol';
 import {INexus} from '../../../nexus/INexus.sol';
 import {BaseVaultV1Controller} from './BaseVaultV1Controller.sol';
-import {VaultV1CatalogChecker} from './VaultV1CatalogChecker.sol';
 import {IFacetCatalog} from '../../../catalog/IFacetCatalog.sol';
+
 
 import {VaultFactoryModule} from './modules/VaultFactoryModule.sol';
 import {GatewayAdapterModule} from './modules/GatewayAdapterModule.sol';
 import {IOUTokenModule} from './modules/IOUTokenModule.sol';
+import {InspectorModule} from "./modules/InspectorModule.sol";
 
 import {StringToAddress, AddressToString} from "../../../utils/StringAddressUtils.sol";
 
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 
-error GatewayNotAccepted(
-  bytes32 nexusId,
-  address gatewayAddress
-);
-
 contract VaultV1Controller is
   IVaultV1Controller,
-  BaseVaultV1Controller,
   Ownable,
-  VaultV1CatalogChecker,
+  BaseVaultV1Controller,
   GatewayAdapterModule,
   VaultFactoryModule,
-  IOUTokenModule
+  IOUTokenModule,
+  InspectorModule
 {
   using StringToAddress for string;
   using AddressToString for address;
@@ -36,35 +32,43 @@ contract VaultV1Controller is
   constructor(
     IFacetCatalog _facetCatalog,
     address _facetAddress
-  ) VaultV1CatalogChecker(_facetCatalog, _facetAddress) {}
+  ) BaseVaultV1Controller(_facetCatalog, _facetAddress) {}
 
-  function deployVault(
+    function deployVault(
     uint16 chainId,
     uint32 vaultId,
-    address gatewayAddress
+    address transmitUsing
   ) external onlyFacetOwners {
     bytes32 nexusId = keccak256(abi.encodePacked(msg.sender));
-    bytes memory innerPayload = abi.encode(nexusId, vaultId);
+    bytes memory innerPayload = abi.encode(vaultId);
 
     _sendPacket(
       chainId,
       V1PacketTypes.CreateVault,
-      gatewayAddress,
+      nexusId,
+      transmitUsing,
       innerPayload
     );
   }
 
-  function setPrimaryVaultGateway(
+  function addAcceptedGateway(
     uint16 chainId,
-    uint32 vaultId,
-    address gatewayAddress
-  ) external onlyFacetOwners {}
+    address gatewayToAdd,
+    address transmitUsing
+  ) external onlyFacetOwners {
+    bytes32 nexusId = keccak256(abi.encodePacked(msg.sender));
+    bytes memory innerPayload = abi.encode(gatewayToAdd);
 
-  function enableVaultRoutingVersion(
-    uint16 chainId,
-    uint32 vaultId,
-    address gatewayAddress
-  ) external onlyFacetOwners {}
+    _sendPacket(
+      chainId,
+      V1PacketTypes.EnableGateway,
+      nexusId,
+      transmitUsing,
+      innerPayload
+    );
+  }
+
+
 
   function _handlePacket(
     uint16 senderChainId,
@@ -79,7 +83,7 @@ contract VaultV1Controller is
         (uint32)
       );
 
-      _deployVault(nexusId, vaultId, gatewayAddress);
+      _deployVault(nexusId, vaultId);
       return;
     }
     if (packetType == V1PacketTypes.EnableGateway) {
@@ -91,18 +95,9 @@ contract VaultV1Controller is
       address addedGatewayAddress = addedGatewayAddressRaw.toAddress();
 
       _enforceAcceptedGateway(nexusId, gatewayAddress);
-      _enableNexusRoutingVersion(nexusId, addedGatewayAddress);
+      _addAcceptedGatewayToNexus(nexusId, addedGatewayAddress);
     }
   }
 
-  function _enforceAcceptedGateway(
-    bytes32 nexusId,
-    address gatewayAddress
-  ) internal view {
-    if (
-      !nexusVaults[nexusId].acceptedGateways[gatewayAddress]
-    ) {
-      revert GatewayNotAccepted(nexusId, gatewayAddress);
-    }
-  }
+
 }

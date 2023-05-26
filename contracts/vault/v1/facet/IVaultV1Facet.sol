@@ -5,12 +5,13 @@ interface IVaultV1Facet {
   function createVaultV1(
     uint16 chainId,
     uint32 vaultId,
-    address gatewayAddress
+    address transmitUsing
   ) external;
 
-  function setPrimaryVaultGatewayV1(
+
+  function addAcceptedGateway(
     uint16 chainId,
-    uint32 vaultId,
-    address gatewayAddress
+    address gatewayToAdd,
+    address transmitUsing
   ) external;
 }

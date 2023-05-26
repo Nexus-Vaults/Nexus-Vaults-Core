@@ -1,11 +1,22 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import '../VaultV1.sol';
+import {INexusGateway} from '../../../gateway/INexusGateway.sol';
+import {VaultV1} from '../VaultV1.sol';
+import {ERC165Checker} from "../../../utils/ERC165Checker.sol";
 
-error VaultDoesNotExist(bytes32 nexusId, uint256 vaultId);
+import {IFacetCatalog} from '../../../catalog/IFacetCatalog.sol';
 
-abstract contract BaseVaultV1Controller {
+import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
+
+error FacetNotInstalled();
+
+error GatewayNotAccepted(
+  bytes32 nexusId,
+  address gatewayAddress
+);
+
+abstract contract BaseVaultV1Controller is ERC165Checker, Ownable {
   struct NexusRecord {
     mapping(uint256 => VaultRecord) vaults;
     mapping(address => bool) acceptedGateways;
@@ -22,40 +33,35 @@ abstract contract BaseVaultV1Controller {
   );
 
   mapping(bytes32 => NexusRecord) internal nexusVaults;
+  mapping(INexusGateway => bool) public gateways;
 
-  function getVaultIds(
-    bytes32 nexusId
-  ) external view returns (uint32[] memory) {
-    return nexusVaults[nexusId].vaultIds;
+  address public immutable facetAddress;
+  IFacetCatalog public immutable facetCatalog;
+
+  constructor(IFacetCatalog _facetCatalog, address _facetAddress) {
+    facetCatalog = _facetCatalog;
+    facetAddress = _facetAddress;
   }
 
-  function getVault(
+  modifier onlyFacetOwners() {
+    if (facetCatalog.hasPurchased(msg.sender, facetAddress)) {
+      revert FacetNotInstalled();
+    }
+    _;
+  }
+
+  function _enforceAcceptedGateway(
     bytes32 nexusId,
-    uint32 vaultId
-  ) external view returns (VaultV1 vault) {
-    VaultRecord storage vaultRecord = nexusVaults[nexusId].vaults[vaultId];
-
-    if (!vaultRecord.isDefined) {
-      revert VaultDoesNotExist(nexusId, vaultId);
+    address gatewayAddress
+  ) internal view {
+    if (
+      !nexusVaults[nexusId].acceptedGateways[gatewayAddress]
+    ) {
+      revert GatewayNotAccepted(nexusId, gatewayAddress);
     }
-
-    return vaultRecord.vault;
   }
 
-  function listVaults(
-    bytes32 nexusId
-  ) external view returns (VaultV1[] memory) {
-    NexusRecord storage nexus = nexusVaults[nexusId];
-    VaultV1[] memory vaults = new VaultV1[](nexus.vaultIds.length);
-
-    for (uint256 i = 0; i < nexus.vaultIds.length; i++) {
-      vaults[i] = nexus.vaults[nexus.vaultIds[i]].vault;
-    }
-
-    return vaults;
-  }
-
-  function _enableNexusRoutingVersion(
+  function _addAcceptedGatewayToNexus(
     bytes32 nexusId,
     address gatewayAddress
   ) internal {
