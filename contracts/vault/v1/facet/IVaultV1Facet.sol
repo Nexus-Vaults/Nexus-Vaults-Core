@@ -5,12 +5,12 @@ interface IVaultV1Facet {
   function createVaultV1(
     uint16 chainId,
     uint32 vaultId,
-    uint16 routingVersion
+    address gatewayAddress
   ) external;
 
-  function setVaultRoutingVersionV1(
+  function setPrimaryVaultGatewayV1(
     uint16 chainId,
     uint32 vaultId,
-    uint16 routingVersion
+    address gatewayAddress
   ) external;
 }

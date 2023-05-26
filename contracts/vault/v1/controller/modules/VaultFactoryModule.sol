@@ -1,13 +1,13 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import {BaseVaultV1Controller} from './BaseVaultV1Controller.sol';
+import {BaseVaultV1Controller} from '../BaseVaultV1Controller.sol';
 
-import {VaultV1} from '../VaultV1.sol';
+import {VaultV1} from '../../VaultV1.sol';
 
 error VaultAtIdAlreadyExists(bytes32 nexusId, uint256 vaultId);
 
-abstract contract VaultV1Factory is BaseVaultV1Controller {
+abstract contract VaultFactoryModule is BaseVaultV1Controller {
   event VaultDeployed(
     bytes32 indexed nexusId,
     uint32 indexed vaultId,
@@ -26,22 +26,25 @@ abstract contract VaultV1Factory is BaseVaultV1Controller {
   function _deployVault(
     bytes32 nexusId,
     uint32 vaultId,
-    uint16 routingVersion
+    address gatewayAddress
   ) internal {
-    if (nexusVaults[nexusId].vaults[vaultId].addr != address(0)) {
+    if (nexusVaults[nexusId].vaults[vaultId].isDefined) {
       revert VaultAtIdAlreadyExists(nexusId, vaultId);
     }
 
-    address vaultAddress = address(
-      new VaultV1{salt: _makeContractSalt(nexusId, vaultId)}(nexusId)
+    VaultV1 vault = new VaultV1{salt: _makeContractSalt(nexusId, vaultId)}(
+      nexusId
     );
 
-    nexusVaults[nexusId].vaults[vaultId] = VaultRecord({
-      addr: vaultAddress,
-      routingVersion: routingVersion
-    });
+    VaultRecord storage vaultRecord = nexusVaults[nexusId].vaults[vaultId];
+
+    vaultRecord.isDefined = true;
+    vaultRecord.vault = vault;
+    vaultRecord.primaryGateway = gatewayAddress;
+    vaultRecord.acceptedGateways[gatewayAddress] = true;
+
     nexusVaults[nexusId].vaultIds.push(vaultId);
 
-    emit VaultDeployed(nexusId, vaultId, vaultAddress);
+    emit VaultDeployed(nexusId, vaultId, address(vault));
   }
 }

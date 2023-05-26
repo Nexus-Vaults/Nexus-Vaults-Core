@@ -46,28 +46,28 @@ contract VaultV1Facet is IDiamondFacet, IVaultV1Facet {
     }
   }
 
+  function createVaultV1(
+    uint16 chainId,
+    uint32 vaultId,
+    address gatewayAddress
+  ) external onlyDelegateCall onlyDiamondOwner {
+    vaultController.deployVault(chainId, vaultId, gatewayAddress);
+  }
+
+  function setPrimaryVaultGatewayV1(
+    uint16 chainId,
+    uint32 vaultId,
+    address gatewayAddress
+  ) external onlyDelegateCall onlyDiamondOwner {
+    vaultController.setPrimaryVaultGateway(chainId, vaultId, gatewayAddress);
+  }
+
   function getSelectors() external pure returns (bytes4[] memory) {
     bytes4[] memory selectors = new bytes4[](2);
 
     selectors[0] = this.createVaultV1.selector;
-    selectors[1] = this.setVaultRoutingVersionV1.selector;
+    selectors[1] = this.setPrimaryVaultGatewayV1.selector;
 
     return selectors;
-  }
-
-  function createVaultV1(
-    uint16 chainId,
-    uint32 vaultId,
-    uint16 routingVersion
-  ) external onlyDelegateCall onlyDiamondOwner {
-    vaultController.deployVault(chainId, vaultId, routingVersion);
-  }
-
-  function setVaultRoutingVersionV1(
-    uint16 chainId,
-    uint32 vaultId,
-    uint16 routingVersion
-  ) external onlyDelegateCall onlyDiamondOwner {
-    vaultController.setVaultRoutingVersion(chainId, vaultId, routingVersion);
   }
 }
