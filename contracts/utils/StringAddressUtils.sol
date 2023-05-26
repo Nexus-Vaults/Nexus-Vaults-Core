@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-abstract contract StringToAddress {
+library StringToAddress {
   function toAddress(string memory _a) internal pure returns (address) {
     bytes memory tmp = bytes(_a);
     if (tmp.length != 42) return address(0);
@@ -19,7 +19,7 @@ abstract contract StringToAddress {
   }
 }
 
-abstract contract AddressToString {
+library AddressToString {
   function toString(address a) internal pure returns (string memory) {
     bytes memory data = abi.encodePacked(a);
     bytes memory characters = '0123456789abcdef';

@@ -12,6 +12,8 @@ import {VaultFactoryModule} from './modules/VaultFactoryModule.sol';
 import {GatewayAdapterModule} from './modules/GatewayAdapterModule.sol';
 import {IOUTokenModule} from './modules/IOUTokenModule.sol';
 
+import {StringToAddress, AddressToString} from "../../../utils/StringAddressUtils.sol";
+
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 
 error GatewayNotAllowedForVault(
@@ -29,6 +31,9 @@ contract VaultV1Controller is
   VaultFactoryModule,
   IOUTokenModule
 {
+  using StringToAddress for string;
+  using AddressToString for address;
+
   constructor(
     IFacetCatalog _facetCatalog,
     address _facetAddress
@@ -65,29 +70,40 @@ contract VaultV1Controller is
   function _handlePacket(
     uint16 senderChainId,
     V1PacketTypes packetType,
+    bytes32 nexusId,
     address gatewayAddress,
     bytes memory payload
   ) internal override {
     if (packetType == V1PacketTypes.CreateVault) {
-      (bytes32 nexusId, uint32 vaultId) = abi.decode(
+      (uint32 vaultId) = abi.decode(
         payload,
-        (bytes32, uint32)
+        (uint32)
       );
 
       _deployVault(nexusId, vaultId, gatewayAddress);
       return;
     }
+    if (packetType == V1PacketTypes.EnableGateway) {
+      (bytes32 nexusId, string memory gatewayAddressRaw) = abi.decode(
+        payload,
+        (bytes32, string)
+      );
+
+      address gatewayAddress = gatewayAddressRaw.toAddress();
+
+      _enforceAcceptedGateway(nexusId, gatewayAddress);
+      _enableNexusRoutingVersion(nexusId, gatewayAddress);
+    }
   }
 
-  function _enforceRoutingVersion(
+  function _enforceAcceptedGateway(
     bytes32 nexusId,
-    uint32 vaultId,
     address gatewayAddress
   ) internal view {
     if (
-      !nexusVaults[nexusId].vaults[vaultId].acceptedGateways[gatewayAddress]
+      !nexusVaults[nexusId].acceptedGateways[gatewayAddress]
     ) {
-      revert GatewayNotAllowedForVault(nexusId, vaultId, gatewayAddress);
+      revert GatewayNotAllowedForVault(nexusId, gatewayAddress);
     }
   }
 }

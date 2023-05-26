@@ -8,18 +8,16 @@ error VaultDoesNotExist(bytes32 nexusId, uint256 vaultId);
 abstract contract BaseVaultV1Controller {
   struct NexusRecord {
     mapping(uint256 => VaultRecord) vaults;
+    mapping(address => bool) acceptedGateways;
     uint32[] vaultIds;
   }
   struct VaultRecord {
     bool isDefined;
     VaultV1 vault;
-    address primaryGateway;
-    mapping(address => bool) acceptedGateways;
   }
 
-  event VaultGatewayAdded(
+  event NexusAddAcceptedGateway(
     bytes32 indexed nexusId,
-    uint32 indexed vaultId,
     address indexed gateway
   );
 
@@ -57,13 +55,12 @@ abstract contract BaseVaultV1Controller {
     return vaults;
   }
 
-  function _enableVaultRoutingVersion(
+  function _enableNexusRoutingVersion(
     bytes32 nexusId,
-    uint32 vaultId,
-    address gateway
+    address gatewayAddress
   ) internal {
-    emit VaultGatewayAdded(nexusId, vaultId, gateway);
+    emit NexusAddAcceptedGateway(nexusId, gatewayAddress);
 
-    nexusVaults[nexusId].vaults[vaultId].acceptedGateways[gateway] = true;
+    nexusVaults[nexusId].acceptedGateways[gatewayAddress] = true;
   }
 }

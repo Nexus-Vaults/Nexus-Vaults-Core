@@ -20,14 +20,14 @@ abstract contract GatewayAdapterModule is IVaultGatewayAdapater {
       revert SenderNotApprovedGateway();
     }
 
-    (V1PacketTypes packetType, bytes memory innerPayload) = abi.decode(
+    (V1PacketTypes packetType, bytes32 nexusId, bytes memory innerPayload) = abi.decode(
       payload,
-      (V1PacketTypes, bytes)
+      (V1PacketTypes, bytes32, bytes)
     );
 
     assert(packetType != V1PacketTypes.Empty);
 
-    _handlePacket(senderChainId, packetType, msg.sender, innerPayload);
+    _handlePacket(senderChainId, packetType, nexusId, msg.sender, innerPayload);
   }
 
   function _sendPacket(
@@ -51,6 +51,7 @@ abstract contract GatewayAdapterModule is IVaultGatewayAdapater {
   function _handlePacket(
     uint16 senderChainId,
     V1PacketTypes packetType,
+    bytes32 nexusId,
     address gatewayAddress,
     bytes memory payload
   ) internal virtual;
