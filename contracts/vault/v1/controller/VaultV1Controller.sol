@@ -7,6 +7,7 @@ import {V1TokenTypes} from '../V1TokenTypes.sol';
 import {INexus} from '../../../nexus/INexus.sol';
 import {BaseVaultV1Controller} from './BaseVaultV1Controller.sol';
 import {IFacetCatalog} from '../../../catalog/IFacetCatalog.sol';
+import {VaultV1Facet} from '../facet/VaultV1Facet.sol';
 
 import {VaultFactoryModule} from './modules/VaultFactoryModule.sol';
 import {GatewayAdapterModule} from './modules/GatewayAdapterModule.sol';
@@ -33,9 +34,14 @@ contract VaultV1Controller is
 
   constructor(
     uint16 _currentChainId,
-    IFacetCatalog _facetCatalog,
-    address _facetAddress
-  ) BaseVaultV1Controller(_currentChainId, _facetCatalog, _facetAddress) {}
+    IFacetCatalog _facetCatalog
+  )
+    BaseVaultV1Controller(
+      _currentChainId,
+      _facetCatalog,
+      address(new VaultV1Facet(address(this)))
+    )
+  {}
 
   function deployVault(
     uint16 chainId,

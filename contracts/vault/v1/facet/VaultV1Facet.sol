@@ -20,8 +20,8 @@ contract VaultV1Facet is IDiamondFacet, IVaultV1Facet {
   IVaultV1Controller private immutable vaultController;
   address private immutable self;
 
-  constructor(IVaultV1Controller _vaultController) {
-    vaultController = _vaultController;
+  constructor(address _vaultController) {
+    vaultController = IVaultV1Controller(_vaultController);
     self = address(this);
   }
 
