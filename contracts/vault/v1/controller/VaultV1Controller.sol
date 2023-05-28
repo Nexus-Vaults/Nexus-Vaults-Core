@@ -99,11 +99,16 @@ contract VaultV1Controller is
       return;
     }
     if (packetType == V1PacketTypes.BridgeOut) {
-      _handleBridgeOut(nexusId, gatewayAddress, payload);
+      _handleBridgeOut(nexusId, payload);
       return;
     }
     if (packetType == V1PacketTypes.MintIOUTokens) {
-      _handleMintIOUTokens();
+      _handleMintIOUTokens(
+        senderChainId,
+        nexusId,
+        gatewayAddress,
+        payload
+      );
       return;
     }
 
@@ -171,7 +176,6 @@ contract VaultV1Controller is
 
   function _handleBridgeOut(
     bytes32 nexusId,
-    address gatewayAddress,
     bytes memory payload
   ) internal {
     (
@@ -187,6 +191,7 @@ contract VaultV1Controller is
         (uint32, V1TokenTypes, string, address, uint16, string, uint256)
       );
 
+    _enforceAcceptedGateway(nexusId, targetGatewayAddress);
     _enforceMinimumAvailableBalance(
       nexusId,
       vaultId,
@@ -207,17 +212,36 @@ contract VaultV1Controller is
       V1PacketTypes.MintIOUTokens,
       nexusId,
       targetGatewayAddress,
-      abi.encode(
-        currentChainId,
-        nexusId,
-        vaultId,
-        tokenType,
-        tokenIdentifier,
-        target,
-        amount
-      )
+      abi.encode(vaultId, tokenType, tokenIdentifier, target, amount)
     );
   }
 
-  function _handleMintIOUTokens() internal {}
+  function _handleMintIOUTokens(
+    uint16 senderChainId,
+    bytes32 nexusId,
+    address gatewayAddress,
+    bytes memory payload
+  ) internal {
+    (
+      uint32 vaultId,
+      V1TokenTypes tokenType,
+      string memory tokenIdentifier,
+      string memory target,
+      uint256 amount
+    ) = abi.decode(
+        payload,
+        (uint32, V1TokenTypes, string, string, uint256)
+      );
+
+    _mintIOU(
+      senderChainId,
+      nexusId,
+      vaultId,
+      gatewayAddress,
+      tokenType,
+      tokenIdentifier,
+      target.toAddress(),
+      amount
+    );
+  }
 }

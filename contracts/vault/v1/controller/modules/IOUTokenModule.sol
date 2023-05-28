@@ -1,14 +1,18 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
+import {V1TokenTypes} from '../../V1TokenTypes.sol';
+
 import {IOUToken} from '../../../../iou/IOUToken.sol';
 
 struct IOUTokenRecord {
   bool isDefined;
   uint16 vaultChainId;
+  bytes32 nexusId;
   uint32 vaultId;
   address gateway;
-  string asset;
+  V1TokenTypes tokenType;
+  string tokenIdentifier;
 }
 
 abstract contract IOUTokenModule {
@@ -17,13 +21,22 @@ abstract contract IOUTokenModule {
 
   function _makeTokenId(
     uint16 vaultChainId,
+    bytes32 nexusId,
     uint32 vaultId,
     address gatewayAddress,
-    string memory asset
+    V1TokenTypes tokenType,
+    string memory tokenIdentifier
   ) private pure returns (bytes32 tokenId) {
     return
       keccak256(
-        abi.encodePacked(vaultChainId, vaultId, gatewayAddress, asset)
+        abi.encodePacked(
+          vaultChainId,
+          nexusId,
+          vaultId,
+          gatewayAddress,
+          tokenType,
+          tokenIdentifier
+        )
       );
   }
 
@@ -31,15 +44,19 @@ abstract contract IOUTokenModule {
     string memory name,
     string memory symbol,
     uint16 vaultChainId,
+    bytes32 nexusId,
     uint32 vaultId,
     address gatewayAddress,
-    string memory asset
+    V1TokenTypes tokenType,
+    string memory tokenIdentifier
   ) private returns (IOUToken) {
     bytes32 tokenId = _makeTokenId(
       vaultChainId,
+      nexusId,
       vaultId,
       gatewayAddress,
-      asset
+      tokenType,
+      tokenIdentifier
     );
 
     IOUToken token = new IOUToken{salt: tokenId}(name, symbol);
@@ -48,9 +65,11 @@ abstract contract IOUTokenModule {
     tokenToRecord[address(token)] = IOUTokenRecord({
       isDefined: true,
       vaultChainId: vaultChainId,
+      nexusId: nexusId,
       vaultId: vaultId,
       gateway: gatewayAddress,
-      asset: asset
+      tokenType: tokenType,
+      tokenIdentifier: tokenIdentifier
     });
 
     return token;
@@ -62,29 +81,35 @@ abstract contract IOUTokenModule {
 
   function _mintIOU(
     uint16 vaultChainId,
+    bytes32 nexusId,
     uint32 vaultId,
     address gatewayAddress,
-    string calldata asset,
+    V1TokenTypes tokenType,
+    string memory tokenIdentifier,
     address receiver,
     uint256 amount
   ) internal {
     bytes32 tokenId = _makeTokenId(
       vaultChainId,
+      nexusId,
       vaultId,
       gatewayAddress,
-      asset
+      tokenType,
+      tokenIdentifier
     );
 
     IOUToken token = recordToToken[tokenId];
 
     if (address(token) == address(0)) {
       token = _deployIOU(
-        asset,
-        asset,
+        tokenIdentifier,
+        tokenIdentifier,
         vaultChainId,
+        nexusId,
         vaultId,
         gatewayAddress,
-        asset
+        tokenType,
+        tokenIdentifier
       );
     }
 
@@ -93,29 +118,35 @@ abstract contract IOUTokenModule {
 
   function _burnIOU(
     uint16 vaultChainId,
+    bytes32 nexusId,
     uint32 vaultId,
     address gatewayAddress,
-    string calldata asset,
+    V1TokenTypes tokenType,
+    string memory tokenIdentifier,
     address from,
     uint256 amount
   ) internal {
     bytes32 tokenId = _makeTokenId(
       vaultChainId,
+      nexusId,
       vaultId,
       gatewayAddress,
-      asset
+      tokenType,
+      tokenIdentifier
     );
 
     IOUToken token = recordToToken[tokenId];
 
     if (address(token) == address(0)) {
       token = _deployIOU(
-        asset,
-        asset,
+        tokenIdentifier,
+        tokenIdentifier,
         vaultChainId,
+        nexusId,
         vaultId,
         gatewayAddress,
-        asset
+        tokenType,
+        tokenIdentifier
       );
     }
 
