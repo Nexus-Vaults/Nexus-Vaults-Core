@@ -28,15 +28,6 @@ abstract contract AxelarPacketGateway is
     IAxelarGateway axelarGateway,
     IAxelarGasService axelarGasService
   ) AxelarExecutable(address(axelarGateway)) {
-    require(
-      address(axelarGateway).isContract(),
-      'axelarGateway not a contract'
-    );
-    require(
-      address(axelarGasService).isContract(),
-      'axelarGasService not a contract'
-    );
-
     AxelarGasService = axelarGasService;
   }
 
