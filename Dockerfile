@@ -1,4 +1,4 @@
-FROM node:18.16.0-buster
+FROM node:18-buster
 
 RUN apt update && apt install nano wget curl git -y
 
