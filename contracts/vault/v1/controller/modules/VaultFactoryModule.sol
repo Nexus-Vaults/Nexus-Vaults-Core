@@ -28,9 +28,9 @@ abstract contract VaultFactoryModule is BaseVaultV1Controller {
       revert VaultAtIdAlreadyExists(nexusId, vaultId);
     }
 
-    VaultV1 vault = new VaultV1{salt: _makeContractSalt(nexusId, vaultId)}(
-      nexusId
-    );
+    VaultV1 vault = new VaultV1{
+      salt: _makeContractSalt(nexusId, vaultId)
+    }();
 
     VaultRecord storage vaultRecord = nexusVaults[nexusId].vaults[vaultId];
 

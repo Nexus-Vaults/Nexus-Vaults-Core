@@ -106,7 +106,7 @@ contract VaultV1Controller is
 
   function _handleDeployVault(
     bytes32 nexusId,
-    bytes calldata payload
+    bytes memory payload
   ) internal {
     uint32 vaultId = abi.decode(payload, (uint32));
 
@@ -115,7 +115,7 @@ contract VaultV1Controller is
 
   function _handleEnableGateway(
     bytes32 nexusId,
-    bytes calldata payload
+    bytes memory payload
   ) internal {
     string memory addedGatewayAddressRaw = abi.decode(payload, (string));
     address addedGatewayAddress = addedGatewayAddressRaw.toAddress();
@@ -126,7 +126,7 @@ contract VaultV1Controller is
   function _handleSendPayment(
     bytes32 nexusId,
     address gatewayAddress,
-    bytes calldata payload
+    bytes memory payload
   ) internal {
     (
       uint32 vaultId,
@@ -155,10 +155,10 @@ contract VaultV1Controller is
       tokenIdentifier,
       amount
     );
-    nexusVaults[nexusId].vaults[vaultId].vault.sendPayment(
+    nexusVaults[nexusId].vaults[vaultId].vault.sendTokens(
       tokenType,
       tokenIdentifier,
-      target.toAddress(),
+      payable(target.toAddress()),
       amount
     );
   }
@@ -166,7 +166,7 @@ contract VaultV1Controller is
   function _handleBridgeOut(
     bytes32 nexusId,
     address gatewayAddress,
-    bytes calldata payload
+    bytes memory payload
   ) internal {
     (
       uint32 vaultId,
@@ -178,7 +178,7 @@ contract VaultV1Controller is
       uint256 amount
     ) = abi.decode(
         payload,
-        (uint32, V1TokenTypes, string, uint16, string, uint256)
+        (uint32, V1TokenTypes, string, address, uint16, string, uint256)
       );
 
     _enforceMinimumAvailableBalance(

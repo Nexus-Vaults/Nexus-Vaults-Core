@@ -80,7 +80,7 @@ abstract contract BaseVaultV1Controller is ERC165Checker, Ownable {
     bytes32 nexusId,
     uint32 vaultId,
     V1TokenTypes tokenType,
-    string calldata tokenIdentifier,
+    string memory tokenIdentifier,
     uint256 minimumBalance
   ) internal view {
     if (
@@ -97,7 +97,7 @@ abstract contract BaseVaultV1Controller is ERC165Checker, Ownable {
     bytes32 nexusId,
     uint32 vaultId,
     V1TokenTypes tokenType,
-    string calldata tokenIdentifier,
+    string memory tokenIdentifier,
     uint256 minimumBalance
   ) internal view {
     VaultRecord storage vaultRecord = nexusVaults[nexusId].vaults[vaultId];
@@ -129,7 +129,7 @@ abstract contract BaseVaultV1Controller is ERC165Checker, Ownable {
     bytes32 nexusId,
     uint32 vaultId,
     V1TokenTypes tokenType,
-    string calldata tokenIdentifier,
+    string memory tokenIdentifier,
     uint256 amount
   ) internal {
     TokenRecord storage tokenRecord = nexusVaults[nexusId]
@@ -145,7 +145,7 @@ abstract contract BaseVaultV1Controller is ERC165Checker, Ownable {
     bytes32 nexusId,
     uint32 vaultId,
     V1TokenTypes tokenType,
-    string calldata tokenIdentifier,
+    string memory tokenIdentifier,
     uint256 amount
   ) internal {
     TokenRecord storage tokenRecord = nexusVaults[nexusId]

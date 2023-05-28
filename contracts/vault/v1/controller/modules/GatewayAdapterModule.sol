@@ -36,7 +36,7 @@ abstract contract GatewayAdapterModule is
 
   function handlePacket(
     uint16 senderChainId,
-    bytes calldata payload
+    bytes memory payload
   ) external payable {
     if (!gateways[INexusGateway(msg.sender)]) {
       revert SenderNotApprovedGateway();
@@ -48,7 +48,7 @@ abstract contract GatewayAdapterModule is
       bytes memory innerPayload
     ) = abi.decode(payload, (V1PacketTypes, bytes32, bytes));
 
-    assert(packetType != V1PacketTypes.Empty);
+    assert(packetType != V1PacketTypes.Never);
 
     _handlePacket(
       senderChainId,
