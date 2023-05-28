@@ -43,7 +43,7 @@ abstract contract AxelarPacketGateway is
     gateway.callContract(chainName, gatewayAddress, packetBytes);
 
     if (msg.value > 0) {
-      AxelarGasService.payNativeGasForContractCall{value: msg.value}(
+      axelarGasService.payNativeGasForContractCall{value: msg.value}(
         address(this),
         chainName,
         gatewayAddress,
