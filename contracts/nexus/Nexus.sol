@@ -18,10 +18,25 @@ contract Nexus is Diamond, INexus {
 
   string public override nexusName;
 
-  constructor(string memory name, address owner) {
-    nexusName = name;
+  constructor(string memory _name) {
+    nexusName = _name;
+    LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
 
-    LibDiamond.diamondStorage().contractOwner = owner;
+    ds.contractOwner = msg.sender;
+  }
+
+  function owner() external view returns (address) {
+    return LibDiamond.diamondStorage().contractOwner;
+  }
+
+  function transferOwnership(address newOwner) external {
+    LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
+
+    if (msg.sender != ds.contractOwner) {
+      revert MustBeOwner(ds.contractOwner, msg.sender);
+    }
+
+    ds.contractOwner = newOwner;
   }
 
   function installFacet(address facetAddress) public {

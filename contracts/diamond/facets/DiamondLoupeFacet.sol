@@ -26,6 +26,18 @@ contract DiamondLoupeFacet is IDiamondFacet, IDiamondLoupe, IERC165 {
     return selectors;
   }
 
+  function getSupportedInterfaceIds()
+    external
+    pure
+    returns (bytes4[] memory)
+  {
+    bytes4[] memory interfaceIds = new bytes4[](5);
+
+    interfaceIds[0] = type(IDiamondLoupe).interfaceId;
+
+    return interfaceIds;
+  }
+
   // Diamond Loupe Functions
   ////////////////////////////////////////////////////////////////////
   /// These functions are expected to be called frequently by tools.

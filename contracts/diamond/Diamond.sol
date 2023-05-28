@@ -8,28 +8,16 @@ pragma solidity ^0.8.18;
 * Implementation of a diamond.
 /******************************************************************************/
 
-import {ERC165Checker} from '../utils/ERC165Checker.sol';
 import {IDiamondFacet} from './IDiamondFacet.sol';
 import {LibDiamond} from './LibDiamond.sol';
 
 // When no function exists for function called
 error FunctionNotFound(bytes4 _functionSelector);
-error TargetMustBeFacet(address target);
-
 error CannotInstallSelectorThatAlreadyExists(bytes4 selector);
 
-contract Diamond is ERC165Checker {
+contract Diamond {
   function _installFacet(address facetAddress) internal {
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
-
-    if (
-      !_supportsERC165Interface(
-        facetAddress,
-        type(IDiamondFacet).interfaceId
-      )
-    ) {
-      revert TargetMustBeFacet(facetAddress);
-    }
 
     bytes4[] memory functionSelectors = IDiamondFacet(facetAddress)
       .getSelectors();
@@ -51,6 +39,19 @@ contract Diamond is ERC165Checker {
         .FacetAddressAndSelectorPosition(facetAddress, selectorCount);
       ds.selectors.push(selector);
       selectorCount++;
+    }
+
+    bytes4[] memory supportedInterfaceIds = IDiamondFacet(facetAddress)
+      .getSupportedInterfaceIds();
+
+    for (
+      uint256 interfaceIdIndex = 0;
+      interfaceIdIndex < supportedInterfaceIds.length;
+      interfaceIdIndex++
+    ) {
+      ds.supportedInterfaces[
+        supportedInterfaceIds[interfaceIdIndex]
+      ] = true;
     }
   }
 

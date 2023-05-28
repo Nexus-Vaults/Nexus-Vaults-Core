@@ -25,6 +25,27 @@ contract VaultV1Facet is IDiamondFacet, IVaultV1Facet {
     self = address(this);
   }
 
+  function getSelectors() external pure returns (bytes4[] memory) {
+    bytes4[] memory selectors = new bytes4[](2);
+
+    selectors[0] = this.createVaultV1.selector;
+    selectors[1] = this.addAcceptedGateway.selector;
+
+    return selectors;
+  }
+
+  function getSupportedInterfaceIds()
+    external
+    pure
+    returns (bytes4[] memory)
+  {
+    bytes4[] memory interfaceIds = new bytes4[](5);
+
+    interfaceIds[0] = type(IVaultV1Facet).interfaceId;
+
+    return interfaceIds;
+  }
+
   modifier onlyDelegateCall() {
     if (address(this) == self) {
       revert MustBeDelegateCall();
@@ -68,14 +89,5 @@ contract VaultV1Facet is IDiamondFacet, IVaultV1Facet {
       gatewayToAdd,
       transmitUsing
     );
-  }
-
-  function getSelectors() external pure returns (bytes4[] memory) {
-    bytes4[] memory selectors = new bytes4[](2);
-
-    selectors[0] = this.createVaultV1.selector;
-    selectors[1] = this.addAcceptedGateway.selector;
-
-    return selectors;
   }
 }
