@@ -18,6 +18,7 @@ error GatewayBalanceTooLow(
   uint32 vaultId,
   address gatewayAddress
 );
+error AvailableBalanceTooLow(bytes32 nexusId, uint32 vaultId);
 
 abstract contract BaseVaultV1Controller is ERC165Checker, Ownable {
   struct NexusRecord {
@@ -43,10 +44,17 @@ abstract contract BaseVaultV1Controller is ERC165Checker, Ownable {
   mapping(bytes32 => NexusRecord) internal nexusVaults;
   mapping(INexusGateway => bool) public gateways;
 
+  uint16 public immutable currentChainId;
+
   address public immutable facetAddress;
   IFacetCatalog public immutable facetCatalog;
 
-  constructor(IFacetCatalog _facetCatalog, address _facetAddress) {
+  constructor(
+    uint16 _currentChainId,
+    IFacetCatalog _facetCatalog,
+    address _facetAddress
+  ) {
+    currentChainId = _currentChainId;
     facetCatalog = _facetCatalog;
     facetAddress = _facetAddress;
   }
@@ -82,6 +90,28 @@ abstract contract BaseVaultV1Controller is ERC165Checker, Ownable {
       minimumBalance
     ) {
       revert GatewayBalanceTooLow(nexusId, vaultId, gatewayAddress);
+    }
+  }
+
+  function _enforceMinimumAvailableBalance(
+    bytes32 nexusId,
+    uint32 vaultId,
+    V1TokenTypes tokenType,
+    string calldata tokenIdentifier,
+    uint256 minimumBalance
+  ) internal view {
+    VaultRecord storage vaultRecord = nexusVaults[nexusId].vaults[vaultId];
+    TokenRecord storage tokenRecord = vaultRecord.tokens[tokenType][
+      tokenIdentifier
+    ];
+
+    uint256 totalBalance = vaultRecord.vault.getBalance(
+      tokenType,
+      tokenIdentifier
+    );
+
+    if (totalBalance - tokenRecord.bridgedBalance < minimumBalance) {
+      revert AvailableBalanceTooLow(nexusId, vaultId);
     }
   }
 
