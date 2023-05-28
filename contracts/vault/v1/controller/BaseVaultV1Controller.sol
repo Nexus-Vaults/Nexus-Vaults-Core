@@ -3,6 +3,7 @@ pragma solidity ^0.8.18;
 
 import {INexusGateway} from '../../../gateway/INexusGateway.sol';
 import {VaultV1} from '../VaultV1.sol';
+import {V1TokenTypes} from '../V1TokenTypes.sol';
 import {ERC165Checker} from '../../../utils/ERC165Checker.sol';
 
 import {IFacetCatalog} from '../../../catalog/IFacetCatalog.sol';
@@ -12,6 +13,11 @@ import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 error FacetNotInstalled();
 
 error GatewayNotAccepted(bytes32 nexusId, address gatewayAddress);
+error GatewayBalanceTooLow(
+  bytes32 nexusId,
+  uint32 vaultId,
+  address gatewayAddress
+);
 
 abstract contract BaseVaultV1Controller is ERC165Checker, Ownable {
   struct NexusRecord {
@@ -22,6 +28,11 @@ abstract contract BaseVaultV1Controller is ERC165Checker, Ownable {
   struct VaultRecord {
     bool isDefined;
     VaultV1 vault;
+    mapping(V1TokenTypes => mapping(string => TokenRecord)) tokens;
+  }
+  struct TokenRecord {
+    uint256 bridgedBalance;
+    mapping(address => uint256) gatewayBalances;
   }
 
   event NexusAddAcceptedGateway(
@@ -56,6 +67,24 @@ abstract contract BaseVaultV1Controller is ERC165Checker, Ownable {
     }
   }
 
+  function _enforceMinimumGatewayBalance(
+    address gatewayAddress,
+    bytes32 nexusId,
+    uint32 vaultId,
+    V1TokenTypes tokenType,
+    string calldata tokenIdentifier,
+    uint256 minimumBalance
+  ) internal view {
+    if (
+      nexusVaults[nexusId]
+      .vaults[vaultId]
+      .tokens[tokenType][tokenIdentifier].gatewayBalances[gatewayAddress] <
+      minimumBalance
+    ) {
+      revert GatewayBalanceTooLow(nexusId, vaultId, gatewayAddress);
+    }
+  }
+
   function _addAcceptedGatewayToNexus(
     bytes32 nexusId,
     address gatewayAddress
@@ -63,5 +92,37 @@ abstract contract BaseVaultV1Controller is ERC165Checker, Ownable {
     emit NexusAddAcceptedGateway(nexusId, gatewayAddress);
 
     nexusVaults[nexusId].acceptedGateways[gatewayAddress] = true;
+  }
+
+  function _incrementBridgedBalance(
+    address gatewayAddress,
+    bytes32 nexusId,
+    uint32 vaultId,
+    V1TokenTypes tokenType,
+    string calldata tokenIdentifier,
+    uint256 amount
+  ) internal {
+    TokenRecord storage tokenRecord = nexusVaults[nexusId]
+      .vaults[vaultId]
+      .tokens[tokenType][tokenIdentifier];
+
+    tokenRecord.bridgedBalance += amount;
+    tokenRecord.gatewayBalances[gatewayAddress] += amount;
+  }
+
+  function _decrementBridgedBalance(
+    address gatewayAddress,
+    bytes32 nexusId,
+    uint32 vaultId,
+    V1TokenTypes tokenType,
+    string calldata tokenIdentifier,
+    uint256 amount
+  ) internal {
+    TokenRecord storage tokenRecord = nexusVaults[nexusId]
+      .vaults[vaultId]
+      .tokens[tokenType][tokenIdentifier];
+
+    tokenRecord.bridgedBalance -= amount;
+    tokenRecord.gatewayBalances[gatewayAddress] -= amount;
   }
 }

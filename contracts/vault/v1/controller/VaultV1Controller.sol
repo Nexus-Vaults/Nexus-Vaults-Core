@@ -3,6 +3,7 @@ pragma solidity ^0.8.18;
 
 import {IVaultV1Controller} from './IVaultV1Controller.sol';
 import {V1PacketTypes} from '../V1PacketTypes.sol';
+import {V1TokenTypes} from '../V1TokenTypes.sol';
 import {INexus} from '../../../nexus/INexus.sol';
 import {BaseVaultV1Controller} from './BaseVaultV1Controller.sol';
 import {IFacetCatalog} from '../../../catalog/IFacetCatalog.sol';
@@ -74,19 +75,55 @@ contract VaultV1Controller is
     address gatewayAddress,
     bytes memory payload
   ) internal override {
+    _enforceAcceptedGateway(nexusId, gatewayAddress);
+
     if (packetType == V1PacketTypes.CreateVault) {
       uint32 vaultId = abi.decode(payload, (uint32));
 
       _deployVault(nexusId, vaultId);
       return;
     }
+
     if (packetType == V1PacketTypes.EnableGateway) {
       string memory addedGatewayAddressRaw = abi.decode(payload, (string));
-
       address addedGatewayAddress = addedGatewayAddressRaw.toAddress();
 
-      _enforceAcceptedGateway(nexusId, gatewayAddress);
       _addAcceptedGatewayToNexus(nexusId, addedGatewayAddress);
+    }
+    if (packetType == V1PacketTypes.SendPayment) {
+      (
+        uint32 vaultId,
+        V1TokenTypes tokenType,
+        string memory tokenIdentifier,
+        string memory target,
+        uint256 amount
+      ) = abi.decode(
+          payload,
+          (uint32, V1TokenTypes, string, string, uint256)
+        );
+
+      _enforceMinimumGatewayBalance(
+        gatewayAddress,
+        nexusId,
+        vaultId,
+        tokenType,
+        tokenIdentifier,
+        amount
+      );
+      _decrementBridgedBalance(
+        gatewayAddress,
+        nexusId,
+        vaultId,
+        tokenType,
+        tokenIdentifier,
+        amount
+      );
+      nexusVaults[nexusId].vaults[vaultId].vault.sendPayment(
+        tokenType,
+        tokenIdentifier,
+        target.toAddress(),
+        amount
+      );
     }
   }
 }
