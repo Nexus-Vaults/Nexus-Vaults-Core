@@ -68,4 +68,18 @@ contract FacetCatalog is IFacetCatalog, Ownable {
       offerings[facetAddress].feeAmount
     );
   }
+
+  function addOffering(
+    address facetAddress,
+    uint256 feeAmount
+  ) external onlyOwner {
+    FacetOffering storage offering = offerings[facetAddress];
+
+    offering.available = true;
+    offering.feeAmount = feeAmount;
+  }
+
+  function removeOffering(address facetAddress) external onlyOwner {
+    offerings[facetAddress].available = false;
+  }
 }
