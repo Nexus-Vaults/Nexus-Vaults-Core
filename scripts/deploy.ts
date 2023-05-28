@@ -39,9 +39,17 @@ async function main() {
 
   await nexusGateway.initialize([]);
 
+  const NexusFactory = await ethers.getContractFactory('NexusFactory');
+  const nexusFactory = await NexusFactory.deploy(
+    feeToken.address,
+    0,
+    signer.address
+  );
+
   console.log(`Catalog at ${facetCatalog.address}`);
   console.log(`Nexus Gateway at ${nexusGateway.address}`);
   console.log(`Vault Controller at ${vaultController.address}`);
+  console.log(`NexusFactory at ${nexusFactory.address}`);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

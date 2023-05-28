@@ -22,13 +22,13 @@ abstract contract AxelarPacketGateway is
   error UnAuthorizedSender(address expected, address actual);
   error UnAuthorizedSourceAddress();
 
-  IAxelarGasService public immutable AxelarGasService;
+  IAxelarGasService public immutable axelarGasService;
 
   constructor(
-    IAxelarGateway axelarGateway,
-    IAxelarGasService axelarGasService
-  ) AxelarExecutable(address(axelarGateway)) {
-    AxelarGasService = axelarGasService;
+    IAxelarGateway _axelarGateway,
+    IAxelarGasService _axelarGasService
+  ) AxelarExecutable(address(_axelarGateway)) {
+    axelarGasService = _axelarGasService;
   }
 
   function axelar_sendPacketTo(
