@@ -39,8 +39,15 @@ async function main() {
 
   await nexusGateway.initialize([]);
 
+  const DiamondLoupeFacet = await ethers.getContractFactory(
+    'DiamondLoupeFacet',
+    signer
+  );
+  const diamondLoupeFacet = await DiamondLoupeFacet.deploy();
+
   const NexusFactory = await ethers.getContractFactory('NexusFactory');
   const nexusFactory = await NexusFactory.deploy(
+    diamondLoupeFacet.address,
     feeToken.address,
     0,
     signer.address
