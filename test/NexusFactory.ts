@@ -42,7 +42,7 @@ describe('NexusFactory', () => {
         await expect(
           nexusFactory
             .connect(bystander)
-            .create('MY_NEXUS', bystanderAddress)
+            .create('MY_NEXUS', bystanderAddress, [])
         ).to.emit(nexusFactory, 'NexusDeployed');
       });
     });

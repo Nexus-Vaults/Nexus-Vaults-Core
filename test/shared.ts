@@ -102,13 +102,13 @@ export async function deploy() {
     treasuryAddress
   );
 
-  const nexusAddress = await nexusFactory.callStatic.create(
-    'TEST_NEXUS',
-    nexusOwnerAddress
-  );
+  const nexusAddress = await nexusFactory
+    .connect(deployer)
+    .callStatic.create('TEST_NEXUS', nexusOwnerAddress, []);
   await nexusFactory
     .connect(deployer)
-    .create('TEST_NEXUS', nexusOwnerAddress);
+    .create('TEST_NEXUS', nexusOwnerAddress, []);
+
   const nexus = await ethers.getContractAt(
     'Nexus',
     nexusAddress,
