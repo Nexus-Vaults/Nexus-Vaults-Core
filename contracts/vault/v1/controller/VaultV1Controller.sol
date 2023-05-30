@@ -44,7 +44,7 @@ contract VaultV1Controller is
   {}
 
   function deployVault(
-    uint16 chainId,
+    uint16 destinationChainId,
     uint32 vaultId,
     address transmitUsing
   ) external onlyFacetOwners {
@@ -52,7 +52,7 @@ contract VaultV1Controller is
     bytes memory innerPayload = abi.encode(vaultId);
 
     _sendPacket(
-      chainId,
+      destinationChainId,
       V1PacketTypes.CreateVault,
       nexusId,
       transmitUsing,
@@ -61,7 +61,7 @@ contract VaultV1Controller is
   }
 
   function addAcceptedGateway(
-    uint16 chainId,
+    uint16 destinationChainId,
     address gatewayToAdd,
     address transmitUsing
   ) external onlyFacetOwners {
@@ -69,7 +69,7 @@ contract VaultV1Controller is
     bytes memory innerPayload = abi.encode(gatewayToAdd);
 
     _sendPacket(
-      chainId,
+      destinationChainId,
       V1PacketTypes.AddAcceptedGateway,
       nexusId,
       transmitUsing,

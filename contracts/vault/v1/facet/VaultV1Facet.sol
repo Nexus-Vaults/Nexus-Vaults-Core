@@ -26,10 +26,11 @@ contract VaultV1Facet is IDiamondFacet, IVaultV1Facet {
   }
 
   function getSelectors() external pure returns (bytes4[] memory) {
-    bytes4[] memory selectors = new bytes4[](2);
+    bytes4[] memory selectors = new bytes4[](3);
 
     selectors[0] = this.createVaultV1.selector;
     selectors[1] = this.addAcceptedGateway.selector;
+    selectors[2] = this.sendPayment.selector;
 
     return selectors;
   }
@@ -72,22 +73,46 @@ contract VaultV1Facet is IDiamondFacet, IVaultV1Facet {
   }
 
   function createVaultV1(
-    uint16 chainId,
+    uint16 destinationChainId,
     uint32 vaultId,
     address transmitUsing
   ) external onlyDelegateCall onlyDiamondOwner {
-    vaultController.deployVault(chainId, vaultId, transmitUsing);
+    vaultController.deployVault(
+      destinationChainId,
+      vaultId,
+      transmitUsing
+    );
   }
 
   function addAcceptedGateway(
-    uint16 chainId,
+    uint16 destinationChainId,
     address gatewayToAdd,
     address transmitUsing
   ) external onlyDelegateCall onlyDiamondOwner {
     vaultController.addAcceptedGateway(
-      chainId,
+      destinationChainId,
       gatewayToAdd,
       transmitUsing
+    );
+  }
+
+  function sendPayment(
+    uint16 destinationChainId,
+    uint32 vaultId,
+    address transmitUsing,
+    V1TokenTypes tokenType,
+    string calldata tokenIdentifier,
+    string calldata target,
+    uint256 amount
+  ) external onlyDelegateCall onlyDiamondOwner {
+    vaultController.sendPayment(
+      destinationChainId,
+      vaultId,
+      transmitUsing,
+      tokenType,
+      tokenIdentifier,
+      target,
+      amount
     );
   }
 }

@@ -6,13 +6,13 @@ import {V1TokenTypes} from '../V1TokenTypes.sol';
 
 interface IVaultV1Controller is IVaultController {
   function deployVault(
-    uint16 chainId,
+    uint16 destinationChainId,
     uint32 vaultId,
     address transmitUsing
   ) external;
 
   function addAcceptedGateway(
-    uint16 chainId,
+    uint16 destinationChainId,
     address gatewayToAdd,
     address transmitUsing
   ) external;
