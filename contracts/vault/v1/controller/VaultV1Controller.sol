@@ -65,12 +65,39 @@ contract VaultV1Controller is
     address gatewayToAdd,
     address transmitUsing
   ) external onlyFacetOwners {
-    bytes32 nexusId = keccak256(abi.encodePacked(msg.sender));
+    bytes32 nexusId = _makeNexusId(msg.sender);
     bytes memory innerPayload = abi.encode(gatewayToAdd);
 
     _sendPacket(
       chainId,
-      V1PacketTypes.EnableGateway,
+      V1PacketTypes.AddAcceptedGateway,
+      nexusId,
+      transmitUsing,
+      innerPayload
+    );
+  }
+
+  function sendPayment(
+    uint16 destinationChainId,
+    uint32 vaultId,
+    address transmitUsing,
+    V1TokenTypes tokenType,
+    string calldata tokenIdentifier,
+    string calldata target,
+    uint256 amount
+  ) external onlyFacetOwners {
+    bytes32 nexusId = _makeNexusId(msg.sender);
+    bytes memory innerPayload = abi.encode(
+      vaultId,
+      tokenType,
+      tokenIdentifier,
+      target,
+      amount
+    );
+
+    _sendPacket(
+      destinationChainId,
+      V1PacketTypes.SendPayment,
       nexusId,
       transmitUsing,
       innerPayload
@@ -90,8 +117,8 @@ contract VaultV1Controller is
       _handleDeployVault(nexusId, payload);
       return;
     }
-    if (packetType == V1PacketTypes.EnableGateway) {
-      _handleEnableGateway(nexusId, payload);
+    if (packetType == V1PacketTypes.AddAcceptedGateway) {
+      _handleAddAcceptedGateway(nexusId, payload);
       return;
     }
     if (packetType == V1PacketTypes.SendPayment) {
@@ -128,7 +155,7 @@ contract VaultV1Controller is
     _deployVault(nexusId, vaultId);
   }
 
-  function _handleEnableGateway(
+  function _handleAddAcceptedGateway(
     bytes32 nexusId,
     bytes memory payload
   ) internal {
@@ -277,5 +304,11 @@ contract VaultV1Controller is
       target.toAddress(),
       amount
     );
+  }
+
+  function _makeNexusId(
+    address nexusAddress
+  ) internal view returns (bytes32) {
+    return keccak256(abi.encode(currentChainId, nexusAddress));
   }
 }

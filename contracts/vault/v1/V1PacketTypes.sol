@@ -4,7 +4,7 @@ pragma solidity ^0.8.18;
 enum V1PacketTypes {
   Never,
   CreateVault,
-  EnableGateway,
+  AddAcceptedGateway,
   SendPayment,
   RedeemPayment,
   BridgeOut,
