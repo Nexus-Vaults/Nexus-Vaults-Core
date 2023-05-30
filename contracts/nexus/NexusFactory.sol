@@ -4,6 +4,7 @@ pragma solidity ^0.8.18;
 import {Nexus} from './Nexus.sol';
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
+import {IFacetCatalog} from '../catalog/IFacetCatalog.sol';
 
 error FeeTransferFailed();
 
@@ -17,6 +18,11 @@ contract NexusFactory is Ownable {
   address private diamondLoupeFacet;
   IERC20 public feeToken;
   uint256 public feeAmount;
+
+  struct FacetInstallation {
+    IFacetCatalog catalog;
+    address facet;
+  }
 
   constructor(
     address _diamondLoupeFacet,
@@ -32,7 +38,8 @@ contract NexusFactory is Ownable {
 
   function create(
     string calldata name,
-    address nexusOwner
+    address nexusOwner,
+    FacetInstallation[] calldata facets
   ) external returns (address) {
     if (!feeToken.transferFrom(msg.sender, owner(), feeAmount)) {
       revert FeeTransferFailed();
@@ -40,6 +47,17 @@ contract NexusFactory is Ownable {
 
     Nexus nexus = new Nexus(name);
     nexus.installFacet(diamondLoupeFacet);
+
+    for (uint256 i = 0; i < facets.length; i++) {
+      FacetInstallation calldata facet = facets[i];
+
+      if (facet.catalog != IFacetCatalog(address(0))) {
+        facet.catalog.purchaseFacetFrom(msg.sender, facet.facet);
+      }
+
+      nexus.installFacet(facet.facet);
+    }
+
     nexus.transferOwnership(nexusOwner);
 
     deployedContracts.push(nexus);
