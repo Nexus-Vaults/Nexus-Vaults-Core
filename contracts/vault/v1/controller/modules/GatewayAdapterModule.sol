@@ -63,14 +63,15 @@ abstract contract GatewayAdapterModule is
     uint16 destinationChainId,
     V1PacketTypes packetType,
     bytes32 nexusId,
-    address gatewayAddress,
+    address transmitUsing,
     bytes memory innerPayload
   ) internal {
-    INexusGateway gateway = INexusGateway(gatewayAddress);
+    INexusGateway gateway = INexusGateway(transmitUsing);
 
     if (!gateways[gateway]) {
       revert TargetNotApprovedGateway();
     }
+    _enforceAcceptedGateway(nexusId, transmitUsing);
 
     gateway.sendPacketTo{value: msg.value}(
       destinationChainId,
