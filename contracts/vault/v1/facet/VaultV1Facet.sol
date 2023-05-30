@@ -26,11 +26,12 @@ contract VaultV1Facet is IDiamondFacet, IVaultV1Facet {
   }
 
   function getSelectors() external pure returns (bytes4[] memory) {
-    bytes4[] memory selectors = new bytes4[](3);
+    bytes4[] memory selectors = new bytes4[](4);
 
     selectors[0] = this.createVaultV1.selector;
     selectors[1] = this.addAcceptedGateway.selector;
     selectors[2] = this.sendPayment.selector;
+    selectors[3] = this.bridgeOut.selector;
 
     return selectors;
   }
@@ -111,6 +112,30 @@ contract VaultV1Facet is IDiamondFacet, IVaultV1Facet {
       vaultId,
       tokenType,
       tokenIdentifier,
+      target,
+      amount
+    );
+  }
+
+  function bridgeOut(
+    uint16 targetChainId,
+    uint32 transmitUsingGatewayId,
+    uint32 vaultId,
+    V1TokenTypes tokenType,
+    string calldata tokenIdentifier,
+    uint16 destinationChainId,
+    address destinationGatewayAddress,
+    string memory target,
+    uint256 amount
+  ) external onlyDelegateCall onlyDiamondOwner {
+    vaultController.bridgeOut(
+      targetChainId,
+      transmitUsingGatewayId,
+      vaultId,
+      tokenType,
+      tokenIdentifier,
+      destinationChainId,
+      destinationGatewayAddress,
       target,
       amount
     );

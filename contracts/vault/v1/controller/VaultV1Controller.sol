@@ -176,7 +176,6 @@ contract VaultV1Controller is
     V1PacketTypes packetType,
     bytes32 nexusId,
     bytes memory payload,
-    address gatewayAddress,
     uint32 gatewayId
   ) internal override {
     _enforceAcceptedGateway(nexusId, gatewayId);

@@ -65,7 +65,6 @@ abstract contract GatewayAdapterModule is
       packetType,
       nexusId,
       innerPayload,
-      msg.sender,
       gatewayId
     );
   }
@@ -92,7 +91,6 @@ abstract contract GatewayAdapterModule is
     V1PacketTypes packetType,
     bytes32 nexusId,
     bytes memory payload,
-    address gatewayAddress,
     uint32 gatewayId
   ) internal virtual;
 }

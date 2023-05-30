@@ -25,4 +25,16 @@ interface IVaultV1Facet {
     string calldata target,
     uint256 amount
   ) external;
+
+  function bridgeOut(
+    uint16 targetChainId,
+    uint32 transmitUsingGatewayId,
+    uint32 vaultId,
+    V1TokenTypes tokenType,
+    string calldata tokenIdentifier,
+    uint16 destinationChainId,
+    address destinationGatewayAddress,
+    string memory target,
+    uint256 amount
+  ) external;
 }
