@@ -15,7 +15,11 @@ abstract contract GatewayAdapterModule is
   BaseVaultV1Controller,
   IVaultGatewayAdapater
 {
-  event GatewayApproved(address gatewayAddress);
+  event GatewayApproved(uint256 gatewayId, address gatewayAddress);
+
+  mapping(INexusGateway => bool) public gateways;
+  uint256 private gatewayCount;
+  mapping(uint256 => INexusGateway) public gatewayVersions;
 
   function addApprovedGateway(address gatewayAddress) external onlyOwner {
     if (
@@ -30,8 +34,12 @@ abstract contract GatewayAdapterModule is
       revert GatewayAlreadyApproved();
     }
 
+    gatewayCount++;
+
     gateways[INexusGateway(gatewayAddress)] = true;
-    emit GatewayApproved(gatewayAddress);
+    gatewayVersions[gatewayCount] = INexusGateway(gatewayAddress);
+
+    emit GatewayApproved(gatewayCount, gatewayAddress);
   }
 
   function handlePacket(

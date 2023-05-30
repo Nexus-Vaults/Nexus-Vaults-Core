@@ -42,7 +42,6 @@ abstract contract BaseVaultV1Controller is ERC165Checker, Ownable {
   );
 
   mapping(bytes32 => NexusRecord) internal nexusVaults;
-  mapping(INexusGateway => bool) public gateways;
 
   uint16 public immutable currentChainId;
 

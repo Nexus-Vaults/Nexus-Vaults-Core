@@ -8,6 +8,7 @@ import {INexus} from '../../../nexus/INexus.sol';
 import {BaseVaultV1Controller} from './BaseVaultV1Controller.sol';
 import {IFacetCatalog} from '../../../catalog/IFacetCatalog.sol';
 import {VaultV1Facet} from '../facet/VaultV1Facet.sol';
+import {IOUTokenRecord} from './modules/IOUTokenModule.sol';
 
 import {VaultFactoryModule} from './modules/VaultFactoryModule.sol';
 import {GatewayAdapterModule} from './modules/GatewayAdapterModule.sol';
@@ -98,6 +99,72 @@ contract VaultV1Controller is
     _sendPacket(
       destinationChainId,
       V1PacketTypes.SendPayment,
+      nexusId,
+      transmitUsing,
+      innerPayload
+    );
+  }
+
+  function redeemPayment(
+    address iouTokenAddress,
+    string calldata target,
+    uint256 amount
+  ) external {
+    IOUTokenRecord storage tokenRecord = tokenToRecord[iouTokenAddress];
+
+    _burnIOU(
+      tokenRecord.vaultChainId,
+      tokenRecord.nexusId,
+      tokenRecord.vaultId,
+      tokenRecord.gateway,
+      tokenRecord.tokenType,
+      tokenRecord.tokenIdentifier,
+      msg.sender,
+      amount
+    );
+
+    bytes memory innerPayload = abi.encode(
+      tokenRecord.vaultId,
+      tokenRecord.tokenType,
+      tokenRecord.tokenIdentifier,
+      target,
+      amount
+    );
+
+    _sendPacket(
+      tokenRecord.vaultChainId,
+      V1PacketTypes.RedeemPayment,
+      tokenRecord.nexusId,
+      tokenRecord.gateway,
+      innerPayload
+    );
+  }
+
+  function bridgeOut(
+    uint16 targetChainId,
+    uint32 vaultId,
+    V1TokenTypes tokenType,
+    string calldata tokenIdentifier,
+    uint16 destinationChainId,
+    address destinationGatewayAddress,
+    string memory target,
+    uint256 amount,
+    address transmitUsing
+  ) external onlyFacetOwners {
+    bytes32 nexusId = _makeNexusId(msg.sender);
+    bytes memory innerPayload = abi.encode(
+      vaultId,
+      tokenType,
+      tokenIdentifier,
+      destinationGatewayAddress,
+      destinationChainId,
+      target,
+      amount
+    );
+
+    _sendPacket(
+      targetChainId,
+      V1PacketTypes.BridgeOut,
       nexusId,
       transmitUsing,
       innerPayload
