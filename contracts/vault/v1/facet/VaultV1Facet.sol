@@ -74,32 +74,32 @@ contract VaultV1Facet is IDiamondFacet, IVaultV1Facet {
 
   function createVaultV1(
     uint16 destinationChainId,
-    uint32 vaultId,
-    address transmitUsing
+    uint32 transmitUsingGatewayId,
+    uint32 vaultId
   ) external onlyDelegateCall onlyDiamondOwner {
     vaultController.deployVault(
       destinationChainId,
-      vaultId,
-      transmitUsing
+      transmitUsingGatewayId,
+      vaultId
     );
   }
 
   function addAcceptedGateway(
     uint16 destinationChainId,
-    address gatewayToAdd,
-    address transmitUsing
+    uint32 transmitUsingGatewayId,
+    uint32 gatewayIdToAdd
   ) external onlyDelegateCall onlyDiamondOwner {
     vaultController.addAcceptedGateway(
       destinationChainId,
-      gatewayToAdd,
-      transmitUsing
+      transmitUsingGatewayId,
+      gatewayIdToAdd
     );
   }
 
   function sendPayment(
     uint16 destinationChainId,
+    uint32 transmitUsingGatewayId,
     uint32 vaultId,
-    address transmitUsing,
     V1TokenTypes tokenType,
     string calldata tokenIdentifier,
     string calldata target,
@@ -107,8 +107,8 @@ contract VaultV1Facet is IDiamondFacet, IVaultV1Facet {
   ) external onlyDelegateCall onlyDiamondOwner {
     vaultController.sendPayment(
       destinationChainId,
+      transmitUsingGatewayId,
       vaultId,
-      transmitUsing,
       tokenType,
       tokenIdentifier,
       target,

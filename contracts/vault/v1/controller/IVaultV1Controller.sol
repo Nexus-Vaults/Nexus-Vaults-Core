@@ -7,20 +7,20 @@ import {V1TokenTypes} from '../V1TokenTypes.sol';
 interface IVaultV1Controller is IVaultController {
   function deployVault(
     uint16 destinationChainId,
-    uint32 vaultId,
-    address transmitUsing
+    uint32 transmitUsingGatewayId,
+    uint32 vaultId
   ) external;
 
   function addAcceptedGateway(
     uint16 destinationChainId,
-    address gatewayToAdd,
-    address transmitUsing
+    uint32 transmitUsingGatewayId,
+    uint32 gatewayIdToAdd
   ) external;
 
   function sendPayment(
     uint16 destinationChainId,
+    uint32 transmitUsingGatewayId,
     uint32 vaultId,
-    address transmitUsing,
     V1TokenTypes tokenType,
     string calldata tokenIdentifier,
     string calldata target,

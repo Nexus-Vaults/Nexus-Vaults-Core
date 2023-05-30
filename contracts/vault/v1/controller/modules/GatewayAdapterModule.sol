@@ -15,11 +15,11 @@ abstract contract GatewayAdapterModule is
   BaseVaultV1Controller,
   IVaultGatewayAdapater
 {
-  event GatewayApproved(uint256 gatewayId, address gatewayAddress);
+  event GatewayApproved(uint32 gatewayId, address gatewayAddress);
 
-  mapping(INexusGateway => bool) public gateways;
-  uint256 private gatewayCount;
-  mapping(uint256 => INexusGateway) public gatewayVersions;
+  mapping(INexusGateway => uint32) public gateways; //Valid if Id != 0
+  uint32 private gatewayCount;
+  mapping(uint32 => INexusGateway) public gatewayVersions;
 
   function addApprovedGateway(address gatewayAddress) external onlyOwner {
     if (
@@ -30,13 +30,13 @@ abstract contract GatewayAdapterModule is
     ) {
       revert IncompatibleGateway();
     }
-    if (gateways[INexusGateway(gatewayAddress)]) {
+    if (gateways[INexusGateway(gatewayAddress)] != 0) {
       revert GatewayAlreadyApproved();
     }
 
     gatewayCount++;
 
-    gateways[INexusGateway(gatewayAddress)] = true;
+    gateways[INexusGateway(gatewayAddress)] = gatewayCount;
     gatewayVersions[gatewayCount] = INexusGateway(gatewayAddress);
 
     emit GatewayApproved(gatewayCount, gatewayAddress);
@@ -46,7 +46,9 @@ abstract contract GatewayAdapterModule is
     uint16 senderChainId,
     bytes memory payload
   ) external payable {
-    if (!gateways[INexusGateway(msg.sender)]) {
+    uint32 gatewayId = gateways[INexusGateway(msg.sender)];
+
+    if (gatewayId == 0) {
       revert SenderNotApprovedGateway();
     }
 
@@ -62,8 +64,9 @@ abstract contract GatewayAdapterModule is
       senderChainId,
       packetType,
       nexusId,
+      innerPayload,
       msg.sender,
-      innerPayload
+      gatewayId
     );
   }
 
@@ -71,15 +74,12 @@ abstract contract GatewayAdapterModule is
     uint16 destinationChainId,
     V1PacketTypes packetType,
     bytes32 nexusId,
-    address transmitUsing,
-    bytes memory innerPayload
+    bytes memory innerPayload,
+    uint32 transmitUsingGatewayId
   ) internal {
-    INexusGateway gateway = INexusGateway(transmitUsing);
+    INexusGateway gateway = gatewayVersions[transmitUsingGatewayId];
 
-    if (!gateways[gateway]) {
-      revert TargetNotApprovedGateway();
-    }
-    _enforceAcceptedGateway(nexusId, transmitUsing);
+    _enforceAcceptedGateway(nexusId, transmitUsingGatewayId);
 
     gateway.sendPacketTo{value: msg.value}(
       destinationChainId,
@@ -91,7 +91,8 @@ abstract contract GatewayAdapterModule is
     uint16 senderChainId,
     V1PacketTypes packetType,
     bytes32 nexusId,
+    bytes memory payload,
     address gatewayAddress,
-    bytes memory payload
+    uint32 gatewayId
   ) internal virtual;
 }

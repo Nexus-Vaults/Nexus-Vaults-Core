@@ -8,9 +8,9 @@ import {IOUToken} from '../../../../iou/IOUToken.sol';
 struct IOUTokenRecord {
   bool isDefined;
   uint16 vaultChainId;
+  uint32 gatewayId;
   bytes32 nexusId;
   uint32 vaultId;
-  address gateway;
   V1TokenTypes tokenType;
   string tokenIdentifier;
 }
@@ -21,9 +21,9 @@ abstract contract IOUTokenModule {
 
   function _makeTokenId(
     uint16 vaultChainId,
+    uint32 gatewayId,
     bytes32 nexusId,
     uint32 vaultId,
-    address gatewayAddress,
     V1TokenTypes tokenType,
     string memory tokenIdentifier
   ) private pure returns (bytes32 tokenId) {
@@ -31,9 +31,9 @@ abstract contract IOUTokenModule {
       keccak256(
         abi.encodePacked(
           vaultChainId,
+          gatewayId,
           nexusId,
           vaultId,
-          gatewayAddress,
           tokenType,
           tokenIdentifier
         )
@@ -44,17 +44,17 @@ abstract contract IOUTokenModule {
     string memory name,
     string memory symbol,
     uint16 vaultChainId,
+    uint32 gatewayId,
     bytes32 nexusId,
     uint32 vaultId,
-    address gatewayAddress,
     V1TokenTypes tokenType,
     string memory tokenIdentifier
   ) private returns (IOUToken) {
     bytes32 tokenId = _makeTokenId(
       vaultChainId,
+      gatewayId,
       nexusId,
       vaultId,
-      gatewayAddress,
       tokenType,
       tokenIdentifier
     );
@@ -65,9 +65,9 @@ abstract contract IOUTokenModule {
     tokenToRecord[address(token)] = IOUTokenRecord({
       isDefined: true,
       vaultChainId: vaultChainId,
+      gatewayId: gatewayId,
       nexusId: nexusId,
       vaultId: vaultId,
-      gateway: gatewayAddress,
       tokenType: tokenType,
       tokenIdentifier: tokenIdentifier
     });
@@ -81,9 +81,9 @@ abstract contract IOUTokenModule {
 
   function _mintIOU(
     uint16 vaultChainId,
+    uint32 gatewayId,
     bytes32 nexusId,
     uint32 vaultId,
-    address gatewayAddress,
     V1TokenTypes tokenType,
     string memory tokenIdentifier,
     address receiver,
@@ -91,9 +91,9 @@ abstract contract IOUTokenModule {
   ) internal {
     bytes32 tokenId = _makeTokenId(
       vaultChainId,
+      gatewayId,
       nexusId,
       vaultId,
-      gatewayAddress,
       tokenType,
       tokenIdentifier
     );
@@ -105,9 +105,9 @@ abstract contract IOUTokenModule {
         tokenIdentifier,
         tokenIdentifier,
         vaultChainId,
+        gatewayId,
         nexusId,
         vaultId,
-        gatewayAddress,
         tokenType,
         tokenIdentifier
       );
@@ -118,9 +118,9 @@ abstract contract IOUTokenModule {
 
   function _burnIOU(
     uint16 vaultChainId,
+    uint32 gatewayId,
     bytes32 nexusId,
     uint32 vaultId,
-    address gatewayAddress,
     V1TokenTypes tokenType,
     string memory tokenIdentifier,
     address from,
@@ -128,9 +128,9 @@ abstract contract IOUTokenModule {
   ) internal {
     bytes32 tokenId = _makeTokenId(
       vaultChainId,
+      gatewayId,
       nexusId,
       vaultId,
-      gatewayAddress,
       tokenType,
       tokenIdentifier
     );
@@ -142,9 +142,9 @@ abstract contract IOUTokenModule {
         tokenIdentifier,
         tokenIdentifier,
         vaultChainId,
+        gatewayId,
         nexusId,
         vaultId,
-        gatewayAddress,
         tokenType,
         tokenIdentifier
       );

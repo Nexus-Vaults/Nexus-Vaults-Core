@@ -46,8 +46,8 @@ contract VaultV1Controller is
 
   function deployVault(
     uint16 destinationChainId,
-    uint32 vaultId,
-    address transmitUsing
+    uint32 transmitUsingGatewayId,
+    uint32 vaultId
   ) external onlyFacetOwners {
     bytes32 nexusId = keccak256(abi.encodePacked(msg.sender));
     bytes memory innerPayload = abi.encode(vaultId);
@@ -56,32 +56,32 @@ contract VaultV1Controller is
       destinationChainId,
       V1PacketTypes.CreateVault,
       nexusId,
-      transmitUsing,
-      innerPayload
+      innerPayload,
+      transmitUsingGatewayId
     );
   }
 
   function addAcceptedGateway(
     uint16 destinationChainId,
-    address gatewayToAdd,
-    address transmitUsing
+    uint32 transmitUsingGatewayId,
+    uint32 gatewayIdToAdd
   ) external onlyFacetOwners {
     bytes32 nexusId = _makeNexusId(msg.sender);
-    bytes memory innerPayload = abi.encode(gatewayToAdd);
+    bytes memory innerPayload = abi.encode(gatewayIdToAdd);
 
     _sendPacket(
       destinationChainId,
       V1PacketTypes.AddAcceptedGateway,
       nexusId,
-      transmitUsing,
-      innerPayload
+      innerPayload,
+      transmitUsingGatewayId
     );
   }
 
   function sendPayment(
     uint16 destinationChainId,
+    uint32 transmitUsingGatewayId,
     uint32 vaultId,
-    address transmitUsing,
     V1TokenTypes tokenType,
     string calldata tokenIdentifier,
     string calldata target,
@@ -100,8 +100,8 @@ contract VaultV1Controller is
       destinationChainId,
       V1PacketTypes.SendPayment,
       nexusId,
-      transmitUsing,
-      innerPayload
+      innerPayload,
+      transmitUsingGatewayId
     );
   }
 
@@ -114,9 +114,9 @@ contract VaultV1Controller is
 
     _burnIOU(
       tokenRecord.vaultChainId,
+      tokenRecord.gatewayId,
       tokenRecord.nexusId,
       tokenRecord.vaultId,
-      tokenRecord.gateway,
       tokenRecord.tokenType,
       tokenRecord.tokenIdentifier,
       msg.sender,
@@ -135,21 +135,21 @@ contract VaultV1Controller is
       tokenRecord.vaultChainId,
       V1PacketTypes.RedeemPayment,
       tokenRecord.nexusId,
-      tokenRecord.gateway,
-      innerPayload
+      innerPayload,
+      tokenRecord.gatewayId
     );
   }
 
   function bridgeOut(
     uint16 targetChainId,
+    uint32 transmitUsingGatewayId,
     uint32 vaultId,
     V1TokenTypes tokenType,
     string calldata tokenIdentifier,
     uint16 destinationChainId,
     address destinationGatewayAddress,
     string memory target,
-    uint256 amount,
-    address transmitUsing
+    uint256 amount
   ) external onlyFacetOwners {
     bytes32 nexusId = _makeNexusId(msg.sender);
     bytes memory innerPayload = abi.encode(
@@ -166,8 +166,8 @@ contract VaultV1Controller is
       targetChainId,
       V1PacketTypes.BridgeOut,
       nexusId,
-      transmitUsing,
-      innerPayload
+      innerPayload,
+      transmitUsingGatewayId
     );
   }
 
@@ -175,10 +175,11 @@ contract VaultV1Controller is
     uint16 senderChainId,
     V1PacketTypes packetType,
     bytes32 nexusId,
+    bytes memory payload,
     address gatewayAddress,
-    bytes memory payload
+    uint32 gatewayId
   ) internal override {
-    _enforceAcceptedGateway(nexusId, gatewayAddress);
+    _enforceAcceptedGateway(nexusId, gatewayId);
 
     if (packetType == V1PacketTypes.CreateVault) {
       _handleDeployVault(nexusId, payload);
@@ -193,7 +194,7 @@ contract VaultV1Controller is
       return;
     }
     if (packetType == V1PacketTypes.RedeemPayment) {
-      _handleRedeemPayment(nexusId, gatewayAddress, payload);
+      _handleRedeemPayment(nexusId, gatewayId, payload);
       return;
     }
     if (packetType == V1PacketTypes.BridgeOut) {
@@ -201,12 +202,7 @@ contract VaultV1Controller is
       return;
     }
     if (packetType == V1PacketTypes.MintIOUTokens) {
-      _handleMintIOUTokens(
-        senderChainId,
-        nexusId,
-        gatewayAddress,
-        payload
-      );
+      _handleMintIOUTokens(senderChainId, nexusId, gatewayId, payload);
       return;
     }
 
@@ -226,10 +222,8 @@ contract VaultV1Controller is
     bytes32 nexusId,
     bytes memory payload
   ) internal {
-    string memory addedGatewayAddressRaw = abi.decode(payload, (string));
-    address addedGatewayAddress = addedGatewayAddressRaw.toAddress();
-
-    _addAcceptedGatewayToNexus(nexusId, addedGatewayAddress);
+    uint32 gatewayIdToAdd = abi.decode(payload, (uint32));
+    _addAcceptedGatewayToNexus(nexusId, gatewayIdToAdd);
   }
 
   function _handleSendPayment(
@@ -264,7 +258,7 @@ contract VaultV1Controller is
 
   function _handleRedeemPayment(
     bytes32 nexusId,
-    address gatewayAddress,
+    uint32 gatewayId,
     bytes memory payload
   ) internal {
     (
@@ -279,20 +273,20 @@ contract VaultV1Controller is
       );
 
     _enforceMinimumGatewayBalance(
-      gatewayAddress,
       nexusId,
       vaultId,
       tokenType,
       tokenIdentifier,
-      amount
+      amount,
+      gatewayId
     );
     _decrementBridgedBalance(
-      gatewayAddress,
       nexusId,
       vaultId,
       tokenType,
       tokenIdentifier,
-      amount
+      amount,
+      gatewayId
     );
     nexusVaults[nexusId].vaults[vaultId].vault.sendTokens(
       tokenType,
@@ -310,16 +304,16 @@ contract VaultV1Controller is
       uint32 vaultId,
       V1TokenTypes tokenType,
       string memory tokenIdentifier,
-      address targetGatewayAddress,
+      uint32 targetGatewayId,
       uint16 targetChainId,
       string memory target,
       uint256 amount
     ) = abi.decode(
         payload,
-        (uint32, V1TokenTypes, string, address, uint16, string, uint256)
+        (uint32, V1TokenTypes, string, uint32, uint16, string, uint256)
       );
 
-    _enforceAcceptedGateway(nexusId, targetGatewayAddress);
+    _enforceAcceptedGateway(nexusId, targetGatewayId);
     _enforceMinimumAvailableBalance(
       nexusId,
       vaultId,
@@ -328,26 +322,26 @@ contract VaultV1Controller is
       amount
     );
     _incrementBridgedBalance(
-      targetGatewayAddress,
       nexusId,
       vaultId,
       tokenType,
       tokenIdentifier,
-      amount
+      amount,
+      targetGatewayId
     );
     _sendPacket(
       targetChainId,
       V1PacketTypes.MintIOUTokens,
       nexusId,
-      targetGatewayAddress,
-      abi.encode(vaultId, tokenType, tokenIdentifier, target, amount)
+      abi.encode(vaultId, tokenType, tokenIdentifier, target, amount),
+      targetGatewayId
     );
   }
 
   function _handleMintIOUTokens(
     uint16 senderChainId,
     bytes32 nexusId,
-    address gatewayAddress,
+    uint32 gatewayId,
     bytes memory payload
   ) internal {
     (
@@ -363,9 +357,9 @@ contract VaultV1Controller is
 
     _mintIOU(
       senderChainId,
+      gatewayId,
       nexusId,
       vaultId,
-      gatewayAddress,
       tokenType,
       tokenIdentifier,
       target.toAddress(),
