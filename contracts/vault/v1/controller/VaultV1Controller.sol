@@ -95,7 +95,11 @@ contract VaultV1Controller is
       return;
     }
     if (packetType == V1PacketTypes.SendPayment) {
-      _handleSendPayment(nexusId, gatewayAddress, payload);
+      _handleSendPayment(nexusId, payload);
+      return;
+    }
+    if (packetType == V1PacketTypes.RedeemPayment) {
+      _handleRedeemPayment(nexusId, gatewayAddress, payload);
       return;
     }
     if (packetType == V1PacketTypes.BridgeOut) {
@@ -135,6 +139,36 @@ contract VaultV1Controller is
   }
 
   function _handleSendPayment(
+    bytes32 nexusId,
+    bytes memory payload
+  ) internal {
+    (
+      uint32 vaultId,
+      V1TokenTypes tokenType,
+      string memory tokenIdentifier,
+      string memory target,
+      uint256 amount
+    ) = abi.decode(
+        payload,
+        (uint32, V1TokenTypes, string, string, uint256)
+      );
+
+    _enforceMinimumAvailableBalance(
+      nexusId,
+      vaultId,
+      tokenType,
+      tokenIdentifier,
+      amount
+    );
+    nexusVaults[nexusId].vaults[vaultId].vault.sendTokens(
+      tokenType,
+      tokenIdentifier,
+      payable(target.toAddress()),
+      amount
+    );
+  }
+
+  function _handleRedeemPayment(
     bytes32 nexusId,
     address gatewayAddress,
     bytes memory payload
