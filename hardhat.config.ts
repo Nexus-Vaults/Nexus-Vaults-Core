@@ -13,6 +13,11 @@ const config: HardhatUserConfig = {
       },
     },
   },
+  etherscan: {
+    apiKey: {
+      ftmTestnet: 'NGHI15HQVP2KQCKKEKX5NNK94BZ774D618',
+    },
+  },
   networks: {
     hardhat: {},
     local: {
@@ -20,6 +25,13 @@ const config: HardhatUserConfig = {
       chainId: 31337,
       accounts: [
         '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+      ],
+    },
+    fantom_testnet: {
+      url: 'https://rpc.testnet.fantom.network',
+      accounts: [
+        process.env.EVM_TESTNET_KEY ??
+          '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
       ],
     },
   },
