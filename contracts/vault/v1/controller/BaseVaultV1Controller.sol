@@ -20,7 +20,7 @@ error GatewayBalanceTooLow(
 );
 error AvailableBalanceTooLow(bytes32 nexusId, uint32 vaultId);
 
-abstract contract BaseVaultV1Controller is ERC165Checker, Ownable {
+abstract contract BaseVaultV1Controller is ERC165Consumer, Ownable {
   struct NexusRecord {
     mapping(uint256 => VaultRecord) vaults;
     mapping(uint32 => bool) acceptedGateways;

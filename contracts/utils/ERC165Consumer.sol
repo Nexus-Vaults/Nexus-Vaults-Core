@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 
 import {IERC165} from '@openzeppelin/contracts/utils/introspection/IERC165.sol';
 
-abstract contract ERC165Checker {
+abstract contract ERC165Consumer {
   function _supportsERC165Interface(
     address account,
     bytes4 interfaceId
