@@ -9,13 +9,13 @@ interface IVaultV1Controller is IVaultController {
     uint16 destinationChainId,
     uint32 transmitUsingGatewayId,
     uint32 vaultId
-  ) external;
+  ) external payable;
 
   function addAcceptedGateway(
     uint16 destinationChainId,
     uint32 transmitUsingGatewayId,
     uint32 gatewayIdToAdd
-  ) external;
+  ) external payable;
 
   function sendPayment(
     uint16 destinationChainId,
@@ -25,7 +25,7 @@ interface IVaultV1Controller is IVaultController {
     string calldata tokenIdentifier,
     string calldata target,
     uint256 amount
-  ) external;
+  ) external payable;
 
   function bridgeOut(
     uint16 targetChainId,
@@ -37,5 +37,5 @@ interface IVaultV1Controller is IVaultController {
     address destinationGatewayAddress,
     string memory target,
     uint256 amount
-  ) external;
+  ) external payable;
 }

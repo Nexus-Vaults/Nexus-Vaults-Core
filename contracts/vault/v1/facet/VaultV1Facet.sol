@@ -77,8 +77,8 @@ contract VaultV1Facet is IDiamondFacet, IVaultV1Facet {
     uint16 destinationChainId,
     uint32 transmitUsingGatewayId,
     uint32 vaultId
-  ) external onlyDelegateCall onlyDiamondOwner {
-    vaultController.deployVault(
+  ) external payable onlyDelegateCall onlyDiamondOwner {
+    vaultController.deployVault{value: msg.value}(
       destinationChainId,
       transmitUsingGatewayId,
       vaultId
@@ -89,8 +89,8 @@ contract VaultV1Facet is IDiamondFacet, IVaultV1Facet {
     uint16 destinationChainId,
     uint32 transmitUsingGatewayId,
     uint32 gatewayIdToAdd
-  ) external onlyDelegateCall onlyDiamondOwner {
-    vaultController.addAcceptedGateway(
+  ) external payable onlyDelegateCall onlyDiamondOwner {
+    vaultController.addAcceptedGateway{value: msg.value}(
       destinationChainId,
       transmitUsingGatewayId,
       gatewayIdToAdd
@@ -105,8 +105,8 @@ contract VaultV1Facet is IDiamondFacet, IVaultV1Facet {
     string calldata tokenIdentifier,
     string calldata target,
     uint256 amount
-  ) external onlyDelegateCall onlyDiamondOwner {
-    vaultController.sendPayment(
+  ) external payable onlyDelegateCall onlyDiamondOwner {
+    vaultController.sendPayment{value: msg.value}(
       destinationChainId,
       transmitUsingGatewayId,
       vaultId,
@@ -127,8 +127,8 @@ contract VaultV1Facet is IDiamondFacet, IVaultV1Facet {
     address destinationGatewayAddress,
     string memory target,
     uint256 amount
-  ) external onlyDelegateCall onlyDiamondOwner {
-    vaultController.bridgeOut(
+  ) external payable onlyDelegateCall onlyDiamondOwner {
+    vaultController.bridgeOut{value: msg.value}(
       targetChainId,
       transmitUsingGatewayId,
       vaultId,

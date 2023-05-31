@@ -48,7 +48,7 @@ contract VaultV1Controller is
     uint16 destinationChainId,
     uint32 transmitUsingGatewayId,
     uint32 vaultId
-  ) external onlyFacetOwners {
+  ) external payable onlyFacetOwners {
     bytes32 nexusId = keccak256(abi.encodePacked(msg.sender));
     bytes memory innerPayload = abi.encode(vaultId);
 
@@ -65,7 +65,7 @@ contract VaultV1Controller is
     uint16 destinationChainId,
     uint32 transmitUsingGatewayId,
     uint32 gatewayIdToAdd
-  ) external onlyFacetOwners {
+  ) external payable onlyFacetOwners {
     bytes32 nexusId = _makeNexusId(msg.sender);
     bytes memory innerPayload = abi.encode(gatewayIdToAdd);
 
@@ -86,7 +86,7 @@ contract VaultV1Controller is
     string calldata tokenIdentifier,
     string calldata target,
     uint256 amount
-  ) external onlyFacetOwners {
+  ) external payable onlyFacetOwners {
     bytes32 nexusId = _makeNexusId(msg.sender);
     bytes memory innerPayload = abi.encode(
       vaultId,
@@ -109,7 +109,7 @@ contract VaultV1Controller is
     address iouTokenAddress,
     string calldata target,
     uint256 amount
-  ) external {
+  ) external payable {
     IOUTokenRecord storage tokenRecord = tokenToRecord[iouTokenAddress];
 
     _burnIOU(
@@ -150,7 +150,7 @@ contract VaultV1Controller is
     address destinationGatewayAddress,
     string memory target,
     uint256 amount
-  ) external onlyFacetOwners {
+  ) external payable onlyFacetOwners {
     bytes32 nexusId = _makeNexusId(msg.sender);
     bytes memory innerPayload = abi.encode(
       vaultId,

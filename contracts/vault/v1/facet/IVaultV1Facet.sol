@@ -8,13 +8,13 @@ interface IVaultV1Facet {
     uint16 destinationChainId,
     uint32 transmitUsingGatewayId,
     uint32 vaultId
-  ) external;
+  ) external payable;
 
   function addAcceptedGateway(
     uint16 destinationChainId,
     uint32 transmitUsingGatewayId,
     uint32 gatewayIdToAdd
-  ) external;
+  ) external payable;
 
   function sendPayment(
     uint16 destinationChainId,
@@ -24,7 +24,7 @@ interface IVaultV1Facet {
     string calldata tokenIdentifier,
     string calldata target,
     uint256 amount
-  ) external;
+  ) external payable;
 
   function bridgeOut(
     uint16 targetChainId,
@@ -36,5 +36,5 @@ interface IVaultV1Facet {
     address destinationGatewayAddress,
     string memory target,
     uint256 amount
-  ) external;
+  ) external payable;
 }
