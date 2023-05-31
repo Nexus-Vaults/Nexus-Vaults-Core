@@ -1,7 +1,64 @@
-import { HardhatUserConfig } from 'hardhat/config';
+import { HardhatUserConfig, task, types } from 'hardhat/config';
 import '@nomicfoundation/hardhat-toolbox';
 import 'hardhat-contract-sizer';
 import '@nomicfoundation/hardhat-chai-matchers';
+
+import { deployNetwork } from './scripts/deployNetwork';
+
+task('deployNetwork', 'Deploys all contracts to a network')
+  .addParam(
+    'contractChainId',
+    'The contractChainId to set for the routing contracts',
+    undefined,
+    types.int,
+    false
+  )
+  .addParam(
+    'feeTokenAddress',
+    'The address of the token to use for fees',
+    undefined,
+    types.string,
+    false
+  )
+  .addParam(
+    'axelarGatewayAddress',
+    'The address of the axelar gateway',
+    undefined,
+    types.string,
+    false
+  )
+  .addParam(
+    'axelarGasServiceAddress',
+    'The address of the axelar gas service',
+    undefined,
+    types.string,
+    false
+  )
+  .addParam(
+    'nexusCreationFeeAmount',
+    'The amount of the fee token to charge for deploying a nexus',
+    0,
+    types.int,
+    true
+  )
+  .addParam(
+    'vaultV1FacetFeeAmount',
+    'The amount of fee token to charge for the VaultV1Facet',
+    0,
+    types.int,
+    true
+  )
+  .setAction(async (taskArgs, hre) => {
+    await deployNetwork(
+      hre,
+      taskArgs.contractChainId,
+      taskArgs.feeTokenAddress,
+      taskArgs.nexusCreationFeeAmount,
+      taskArgs.axelarGatewayAddress,
+      taskArgs.axelarGasServiceAddress,
+      taskArgs.vaultV1FacetFeeAmount
+    );
+  });
 
 const config: HardhatUserConfig = {
   solidity: {
