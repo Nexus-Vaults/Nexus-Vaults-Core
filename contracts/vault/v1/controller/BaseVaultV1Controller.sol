@@ -4,7 +4,7 @@ pragma solidity ^0.8.18;
 import {INexusGateway} from '../../../gateway/INexusGateway.sol';
 import {VaultV1} from '../VaultV1.sol';
 import {V1TokenTypes} from '../V1TokenTypes.sol';
-import {ERC165Checker} from '../../../utils/ERC165Checker.sol';
+import {ERC165Consumer} from '../../../utils/ERC165Consumer.sol';
 
 import {IFacetCatalog} from '../../../catalog/IFacetCatalog.sol';
 
