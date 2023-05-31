@@ -16,6 +16,8 @@ error FunctionNotFound(bytes4 _functionSelector);
 error CannotInstallSelectorThatAlreadyExists(bytes4 selector);
 
 contract Diamond {
+  event FacetInstalled(address facetAddress);
+
   function _installFacet(address facetAddress) internal {
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
 
@@ -53,6 +55,8 @@ contract Diamond {
         supportedInterfaceIds[interfaceIdIndex]
       ] = true;
     }
+
+    emit FacetInstalled(facetAddress);
   }
 
   // Find facet for function that is called and execute the
