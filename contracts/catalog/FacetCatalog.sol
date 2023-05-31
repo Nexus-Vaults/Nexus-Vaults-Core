@@ -6,29 +6,41 @@ import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 
 error FacetNotAvailable();
+error FacetAlreadyAvailable();
 error FeeTransferFailed();
 
 //ToDo: Make ERC1155
 contract FacetCatalog is IFacetCatalog, Ownable {
   struct FacetOffering {
     bool available;
+    IERC20 feeToken;
     uint256 feeAmount;
     mapping(address => bool) hasBought;
   }
 
+  event FacetOfferingAdded(
+    address indexed facetAddress,
+    IERC20 feeToken,
+    uint256 feeAmount
+  );
+  event FacetOfferingFeeUpdated(
+    address indexed facetAddress,
+    IERC20 feeToken,
+    uint256 feeAmount
+  );
+  event FacetOfferingRemoved(address indexed facetAddress);
+
   event FacetPurchased(
     address indexed nexus,
-    address indexed facet,
-    address token,
-    uint256 amount
+    address indexed facetAddress,
+    IERC20 feeToken,
+    uint256 feeAmount
   );
 
-  IERC20 public feeToken;
   mapping(address => FacetOffering) public offerings;
 
-  constructor(IERC20 _feeToken, address treasuryAddress) {
+  constructor(address treasuryAddress) {
     _transferOwnership(treasuryAddress);
-    feeToken = _feeToken;
   }
 
   function hasPurchased(
@@ -51,7 +63,7 @@ contract FacetCatalog is IFacetCatalog, Ownable {
       revert FacetNotAvailable();
     }
     if (
-      !feeToken.transferFrom(
+      !offerings[facetAddress].feeToken.transferFrom(
         payer,
         owner(),
         offerings[facetAddress].feeAmount
@@ -64,22 +76,53 @@ contract FacetCatalog is IFacetCatalog, Ownable {
     emit FacetPurchased(
       msg.sender,
       facetAddress,
-      address(feeToken),
+      offerings[facetAddress].feeToken,
       offerings[facetAddress].feeAmount
     );
   }
 
   function addOffering(
     address facetAddress,
+    IERC20 feeToken,
     uint256 feeAmount
   ) external onlyOwner {
+    if (offerings[facetAddress].available) {
+      revert FacetAlreadyAvailable();
+    }
+
     FacetOffering storage offering = offerings[facetAddress];
 
     offering.available = true;
+    offering.feeToken = feeToken;
     offering.feeAmount = feeAmount;
+
+    emit FacetOfferingAdded(facetAddress, feeToken, feeAmount);
+  }
+
+  function updateFee(
+    address facetAddress,
+    IERC20 feeToken,
+    uint256 feeAmount
+  ) external onlyOwner {
+    if (!offerings[facetAddress].available) {
+      revert FacetNotAvailable();
+    }
+
+    FacetOffering storage offering = offerings[facetAddress];
+
+    offering.feeToken = feeToken;
+    offering.feeAmount = feeAmount;
+
+    emit FacetOfferingFeeUpdated(facetAddress, feeToken, feeAmount);
   }
 
   function removeOffering(address facetAddress) external onlyOwner {
+    if (!offerings[facetAddress].available) {
+      revert FacetNotAvailable();
+    }
+
     offerings[facetAddress].available = false;
+
+    emit FacetOfferingRemoved(facetAddress);
   }
 }
