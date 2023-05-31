@@ -28,6 +28,35 @@ abstract contract InspectorModule is BaseVaultV1Controller {
     return vaults;
   }
 
+  function listAcceptedGateways(
+    bytes32 nexusId
+  ) external view returns (uint32[] memory) {
+    NexusRecord storage nexus = nexusVaults[nexusId];
+    uint256 acceptedGatewayCount = 0;
+
+    for (uint32 i = 1; i < gatewayCount; i++) {
+      if (!nexus.acceptedGateways[i]) {
+        continue;
+      }
+
+      acceptedGatewayCount++;
+    }
+
+    uint32[] memory gatewayIds = new uint32[](acceptedGatewayCount);
+    acceptedGatewayCount = 0;
+
+    for (uint32 i = 1; i < gatewayCount; i++) {
+      if (!nexus.acceptedGateways[i]) {
+        continue;
+      }
+
+      gatewayIds[acceptedGatewayCount] = i;
+      acceptedGatewayCount++;
+    }
+
+    return gatewayIds;
+  }
+
   function getVault(
     bytes32 nexusId,
     uint32 vaultId
