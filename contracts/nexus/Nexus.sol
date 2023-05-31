@@ -10,11 +10,16 @@ import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
 error MustBeOwner(address owner, address sender);
 
+struct FacetPayment {
+  IERC20 token;
+  uint256 amount;
+}
+
 contract Nexus is Diamond, INexus {
-  struct FacetPayment {
-    IERC20 token;
-    uint256 amount;
-  }
+  event OwnershipTransferred(
+    address indexed previousOwner,
+    address indexed newOwner
+  );
 
   string public override nexusName;
 
@@ -36,6 +41,7 @@ contract Nexus is Diamond, INexus {
       revert MustBeOwner(ds.contractOwner, msg.sender);
     }
 
+    emit OwnershipTransferred(ds.contractOwner, newOwner);
     ds.contractOwner = newOwner;
   }
 
