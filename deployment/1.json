@@ -1,0 +1,10 @@
+{
+  "contractChainId": 1,
+  "axelarChainName": "Fantom",
+  "nexusFactoryAddress": "0x49946d8E9d7817E6fEA62a3be198B4573808CE8a",
+  "vaultV1ControllerAddress": "0x568BB666a4863034eFdc72Dd2037C2d829aa7D05",
+  "nexusGatewayAddress": "0x480C2b69B1F9a7737806D585608345c2aB7e4899",
+  "publicCatalogAddress": "0x5Ca6f69713944b9Ef50Da1a937180597dc7b38Da",
+  "vaultV1FacetAddress": "0x55d2D4692eb97FBFBf66A7CC7733378C67129f6a",
+  "links": []
+}

@@ -1,0 +1,10 @@
+{
+  "contractChainId": 2,
+  "axelarChainName": "Polygon",
+  "nexusFactoryAddress": "0x19E8ac9C3854fFd79733eF96C702B5F213Cf3dBF",
+  "vaultV1ControllerAddress": "0x7E701Df8d9F66c4b93fE0CEf20e59a8E5AB052fb",
+  "nexusGatewayAddress": "0x3548a4e05Fd6008C527296EAe93C06Fc81EBafc2",
+  "publicCatalogAddress": "0xaec6DF3bd5C83ee5a0C84b06af976bbF9662d783",
+  "vaultV1FacetAddress": "0x6752A10E44F28F8D09244A600F50ba57169FCD2b",
+  "links": []
+}

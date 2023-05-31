@@ -3,61 +3,12 @@ import '@nomicfoundation/hardhat-toolbox';
 import 'hardhat-contract-sizer';
 import '@nomicfoundation/hardhat-chai-matchers';
 
-import { deployNetwork } from './scripts/deployNetwork';
+import { quickDeploy } from './scripts/quickDeploy';
 
-task('deployNetwork', 'Deploys all contracts to a network')
-  .addParam(
-    'contractChainId',
-    'The contractChainId to set for the routing contracts',
-    undefined,
-    types.int,
-    false
-  )
-  .addParam(
-    'feeTokenAddress',
-    'The address of the token to use for fees',
-    undefined,
-    types.string,
-    false
-  )
-  .addParam(
-    'axelarGatewayAddress',
-    'The address of the axelar gateway',
-    undefined,
-    types.string,
-    false
-  )
-  .addParam(
-    'axelarGasServiceAddress',
-    'The address of the axelar gas service',
-    undefined,
-    types.string,
-    false
-  )
-  .addParam(
-    'nexusCreationFeeAmount',
-    'The amount of the fee token to charge for deploying a nexus',
-    0,
-    types.int,
-    true
-  )
-  .addParam(
-    'vaultV1FacetFeeAmount',
-    'The amount of fee token to charge for the VaultV1Facet',
-    0,
-    types.int,
-    true
-  )
-  .setAction(async (taskArgs, hre) => {
-    await deployNetwork(
-      hre,
-      taskArgs.contractChainId,
-      taskArgs.feeTokenAddress,
-      taskArgs.nexusCreationFeeAmount,
-      taskArgs.axelarGatewayAddress,
-      taskArgs.axelarGasServiceAddress,
-      taskArgs.vaultV1FacetFeeAmount
-    );
+task('quickDeploy')
+  .addParam('contractChainId', undefined, undefined, types.int)
+  .setAction(async (params, hre) => {
+    await quickDeploy(hre, params.contractChainId);
   });
 
 const config: HardhatUserConfig = {
@@ -73,6 +24,7 @@ const config: HardhatUserConfig = {
   etherscan: {
     apiKey: {
       ftmTestnet: 'NGHI15HQVP2KQCKKEKX5NNK94BZ774D618',
+      polygonMumbai: '72KJ5YSN3GSYKWW1DAW4KIWUZW7K9P2KPS',
     },
   },
   networks: {
@@ -86,6 +38,20 @@ const config: HardhatUserConfig = {
     },
     fantom_testnet: {
       url: 'https://rpc.testnet.fantom.network',
+      accounts: [
+        process.env.EVM_TESTNET_KEY ??
+          '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+      ],
+    },
+    polygon_testnet: {
+      url: 'https://rpc-mumbai.maticvigil.com',
+      accounts: [
+        process.env.EVM_TESTNET_KEY ??
+          '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+      ],
+    },
+    bsc_testnet: {
+      url: 'https://bsc-testnet.publicnode.com',
       accounts: [
         process.env.EVM_TESTNET_KEY ??
           '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',

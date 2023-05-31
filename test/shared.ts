@@ -86,6 +86,8 @@ export async function deploy() {
     '0x0000000000000000000000000000000000000001'
   );
 
+  await vaultController.addApprovedGateway(nexusGateway.address);
+
   await nexusGateway.initialize([]);
 
   const DiamondLoupeFacet = await ethers.getContractFactory(
