@@ -12,6 +12,8 @@ import {
 } from '../typechain-types';
 
 export interface Deployment {
+  contractChainId: number;
+
   deployer: Signer;
   deployerAddress: string;
   treasury: Signer;
@@ -49,10 +51,7 @@ export async function deploy() {
     'FacetCatalog',
     deployer
   );
-  const facetCatalog = await FacetCatalog.deploy(
-    feeToken.address,
-    treasuryAddress
-  );
+  const facetCatalog = await FacetCatalog.deploy(treasuryAddress);
 
   const VaultController = await ethers.getContractFactory(
     'VaultV1Controller',
@@ -70,7 +69,11 @@ export async function deploy() {
   );
   await facetCatalog
     .connect(treasury)
-    .addOffering(vaultFacet.address, 10000000000000000000n);
+    .addOffering(
+      vaultFacet.address,
+      feeToken.address,
+      10000000000000000000n
+    );
 
   const NexusGateway = await ethers.getContractFactory(
     'NexusGateway',
@@ -116,6 +119,7 @@ export async function deploy() {
   );
 
   return {
+    contractChainId: 1,
     deployer: deployer,
     deployerAddress: deployerAddress,
     treasury: treasury,

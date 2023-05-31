@@ -34,7 +34,7 @@ abstract contract InspectorModule is BaseVaultV1Controller {
     NexusRecord storage nexus = nexusVaults[nexusId];
     uint256 acceptedGatewayCount = 0;
 
-    for (uint32 i = 1; i < gatewayCount; i++) {
+    for (uint32 i = 1; i <= gatewayCount; i++) {
       if (!nexus.acceptedGateways[i]) {
         continue;
       }
@@ -45,7 +45,7 @@ abstract contract InspectorModule is BaseVaultV1Controller {
     uint32[] memory gatewayIds = new uint32[](acceptedGatewayCount);
     acceptedGatewayCount = 0;
 
-    for (uint32 i = 1; i < gatewayCount; i++) {
+    for (uint32 i = 1; i <= gatewayCount; i++) {
       if (!nexus.acceptedGateways[i]) {
         continue;
       }
