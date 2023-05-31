@@ -6,11 +6,26 @@ import {VaultV1} from '../../VaultV1.sol';
 
 error VaultDoesNotExist(bytes32 nexusId, uint256 vaultId);
 
+struct VaultInfo {
+  uint32 vaultId;
+  VaultV1 vault;
+}
+
 abstract contract InspectorModule is BaseVaultV1Controller {
-  function getVaultIds(
+  function listVaults(
     bytes32 nexusId
-  ) external view returns (uint32[] memory) {
-    return nexusVaults[nexusId].vaultIds;
+  ) external view returns (VaultInfo[] memory) {
+    NexusRecord storage nexus = nexusVaults[nexusId];
+    VaultInfo[] memory vaults = new VaultInfo[](nexus.vaultIds.length);
+
+    for (uint256 i = 0; i < nexus.vaultIds.length; i++) {
+      vaults[i] = VaultInfo({
+        vaultId: nexus.vaultIds[i],
+        vault: nexus.vaults[nexus.vaultIds[i]].vault
+      });
+    }
+
+    return vaults;
   }
 
   function getVault(
@@ -24,18 +39,5 @@ abstract contract InspectorModule is BaseVaultV1Controller {
     }
 
     return vaultRecord.vault;
-  }
-
-  function listVaults(
-    bytes32 nexusId
-  ) external view returns (VaultV1[] memory) {
-    NexusRecord storage nexus = nexusVaults[nexusId];
-    VaultV1[] memory vaults = new VaultV1[](nexus.vaultIds.length);
-
-    for (uint256 i = 0; i < nexus.vaultIds.length; i++) {
-      vaults[i] = nexus.vaults[nexus.vaultIds[i]].vault;
-    }
-
-    return vaults;
   }
 }
