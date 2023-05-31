@@ -7,10 +7,7 @@ async function main() {
   const feeToken = await FeeToken.deploy();
 
   const FacetCatalog = await ethers.getContractFactory('FacetCatalog');
-  const facetCatalog = await FacetCatalog.deploy(
-    feeToken.address,
-    signer.address
-  );
+  const facetCatalog = await FacetCatalog.deploy(signer.address);
 
   const VaultController = await ethers.getContractFactory(
     'VaultV1Controller'
@@ -26,6 +23,7 @@ async function main() {
   );
   await facetCatalog.addOffering(
     vaultFacet.address,
+    feeToken.address,
     10000000000000000000n
   );
 
@@ -53,17 +51,16 @@ async function main() {
     signer.address
   );
 
-  const deployTx = await nexusFactory.create(
+  const nexusAddress = await nexusFactory.callStatic.create(
     'TEST_NEXUS',
     signer.address,
     []
   );
 
-  const nexusAddress = await nexusFactory.callStatic.create(
+  const deployTx = await nexusFactory.create(
     'TEST_NEXUS',
     signer.address,
-    [],
-    { nonce: deployTx.nonce }
+    []
   );
 
   const nexus = await ethers.getContractAt('Nexus', nexusAddress, signer);
@@ -72,7 +69,7 @@ async function main() {
   console.log(`Nexus Gateway at ${nexusGateway.address}`);
   console.log(`Vault Controller at ${vaultController.address}`);
   console.log(`NexusFactory at ${nexusFactory.address}`);
-  console.log(`Nexus at ${nexus}`);
+  console.log(`Nexus at ${nexus.address}`);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
