@@ -17,10 +17,6 @@ abstract contract GatewayAdapterModule is
 {
   event GatewayApproved(uint32 gatewayId, address gatewayAddress);
 
-  mapping(INexusGateway => uint32) public gateways; //Valid if Id != 0
-  uint32 private gatewayCount;
-  mapping(uint32 => INexusGateway) public gatewayVersions;
-
   function addApprovedGateway(address gatewayAddress) external onlyOwner {
     if (
       !_supportsERC165Interface(

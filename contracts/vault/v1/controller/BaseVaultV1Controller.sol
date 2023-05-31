@@ -48,6 +48,10 @@ abstract contract BaseVaultV1Controller is ERC165Consumer, Ownable {
   address public immutable facetAddress;
   IFacetCatalog public immutable facetCatalog;
 
+  mapping(INexusGateway => uint32) public gateways; //Valid if Id != 0
+  uint32 internal gatewayCount;
+  mapping(uint32 => INexusGateway) public gatewayVersions;
+
   constructor(
     uint16 _currentChainId,
     IFacetCatalog _facetCatalog,
