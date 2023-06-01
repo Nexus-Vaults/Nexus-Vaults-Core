@@ -110,9 +110,15 @@ export async function deploy() {
   const nexusAddress = await nexusFactory
     .connect(deployer)
     .callStatic.create('TEST_NEXUS', nexusOwnerAddress, []);
+
   await nexusFactory
     .connect(deployer)
-    .create('TEST_NEXUS', nexusOwnerAddress, []);
+    .create('TEST_NEXUS', nexusOwnerAddress, [
+      {
+        catalog: facetCatalog.address,
+        facet: vaultFacet.address,
+      },
+    ]);
 
   const nexus = await ethers.getContractAt(
     'Nexus',

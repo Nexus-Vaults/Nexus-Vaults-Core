@@ -50,8 +50,6 @@ export async function deployNetwork(
     axelarGasServiceAddress
   );
 
-  await nexusGateway.deployTransaction.wait(1);
-
   console.log('Adding approved gateway...');
   await vaultController.addApprovedGateway(nexusGateway.address);
 
@@ -85,18 +83,18 @@ export async function deployNetwork(
     signer.address
   );
 
-  const nexusAddress = await nexusFactory.callStatic.create(
-    'TEST_NEXUS',
-    signer.address,
-    []
-  );
+  //const nexusAddress = await nexusFactory.callStatic.create(
+  //  'TEST_NEXUS',
+  //  signer.address,
+  //  []
+  //);
 
-  console.log('Deploying TestNexus...');
-  await nexusFactory.create('TEST_NEXUS', signer.address, []);
-
-  const nexus = await ethers.getContractAt('Nexus', nexusAddress, signer);
-
-  console.log('Test Nexus At ' + nexus.address);
+  //console.log('Deploying TestNexus...');
+  //await nexusFactory.create('TEST_NEXUS', signer.address, []);
+  //
+  //const nexus = await ethers.getContractAt('Nexus', nexusAddress, signer);
+  //
+  //console.log('Test Nexus At ' + nexus.address);
 
   const deployment: Deployment = {
     contractChainId: contractChainId,

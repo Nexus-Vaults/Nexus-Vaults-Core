@@ -1,15 +1,1 @@
-{
-  "contractChainId": 1,
-  "axelarChainName": "Fantom",
-  "nexusFactoryAddress": "0x49946d8E9d7817E6fEA62a3be198B4573808CE8a",
-  "vaultV1ControllerAddress": "0x568BB666a4863034eFdc72Dd2037C2d829aa7D05",
-  "nexusGatewayAddress": "0x480C2b69B1F9a7737806D585608345c2aB7e4899",
-  "publicCatalogAddress": "0x5Ca6f69713944b9Ef50Da1a937180597dc7b38Da",
-  "vaultV1FacetAddress": "0x55d2D4692eb97FBFBf66A7CC7733378C67129f6a",
-  "links": [
-    {
-      "targetContractChainId": 2,
-      "targetGatewayAddress": "0x3548a4e05Fd6008C527296EAe93C06Fc81EBafc2"
-    }
-  ]
-}
+{"contractChainId":1,"axelarChainName":"Fantom","nexusFactoryAddress":"0xbb8c76181Dcea74DBe890D8803CaE867E2A6A1D7","vaultV1ControllerAddress":"0xEC77240b81fE2fC9b1Ac614E20E4973723D4bC73","nexusGatewayAddress":"0xa781e24404Dd846158844945cb38e3787eaa88Cd","publicCatalogAddress":"0xf04Ed398db4bDaD00366AD3523d63D3Fdff97C8C","vaultV1FacetAddress":"0x85bBaC965e477A002863290a7eb35737C357dB6D","links":[{"targetContractChainId":2,"targetGatewayAddress":"0x72596f7ffEBC8E61A83587F6eaF53CA0023dF119"},{"targetContractChainId":3,"targetGatewayAddress":"0xa781e24404Dd846158844945cb38e3787eaa88Cd"}]}

@@ -3,9 +3,12 @@ import { deployNetwork } from './deployNetwork';
 
 export async function quickDeploy(
   hre: HardhatRuntimeEnvironment,
+  testnet: boolean,
   contractChainId: number
 ) {
-  const parameters = getDeploymentParameters(contractChainId);
+  const parameters = testnet
+    ? getDeploymentParametersTestnet(contractChainId)
+    : getDeploymentParametersMainnet(contractChainId);
 
   await deployNetwork(
     hre,
@@ -26,7 +29,7 @@ interface DeploymentParameters {
   axelarChainName: string;
 }
 
-function getDeploymentParameters(
+function getDeploymentParametersTestnet(
   contractChainId: number
 ): DeploymentParameters {
   if (contractChainId == 1) {
@@ -45,6 +48,38 @@ function getDeploymentParameters(
       axelarGasServiceAddress:
         '0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6',
       axelarChainName: 'Polygon',
+    };
+  }
+
+  throw 'Unsupported';
+}
+
+function getDeploymentParametersMainnet(contractChainId: number) {
+  if (contractChainId == 1) {
+    return {
+      feeTokenAddress: '0x04068da6c83afcfa0e13ba15a6696662335d5b75',
+      axelarGatewayAddress: '0x304acf330bbE08d1e512eefaa92F6a57871fD895',
+      axelarGasServiceAddress:
+        '0x2d5d7d31F671F86C782533cc367F14109a082712',
+      axelarChainName: 'Fantom',
+    };
+  }
+  if (contractChainId == 2) {
+    return {
+      feeTokenAddress: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
+      axelarGatewayAddress: '0x6f015F16De9fC8791b234eF68D486d2bF203FBA8',
+      axelarGasServiceAddress:
+        '0x2d5d7d31F671F86C782533cc367F14109a082712',
+      axelarChainName: 'Polygon',
+    };
+  }
+  if (contractChainId == 3) {
+    return {
+      feeTokenAddress: '0xca01a1d0993565291051daff390892518acfad3a',
+      axelarGatewayAddress: '0x4F4495243837681061C4743b74B3eEdf548D56A5',
+      axelarGasServiceAddress:
+        '0x2d5d7d31F671F86C782533cc367F14109a082712',
+      axelarChainName: 'Moonbeam',
     };
   }
 

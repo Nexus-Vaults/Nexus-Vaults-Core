@@ -8,8 +8,9 @@ import { linkNetworks } from './scripts/linkNetworks';
 
 task('quickDeploy')
   .addParam('contractChainId', undefined, undefined, types.int)
+  .addParam('mainnet', undefined, undefined, types.boolean, false)
   .setAction(async (params, hre) => {
-    await quickDeploy(hre, params.contractChainId);
+    await quickDeploy(hre, !params.mainnet, params.contractChainId);
   });
 
 task('linkNetworks')
@@ -61,6 +62,27 @@ const config: HardhatUserConfig = {
       url: 'https://bsc-testnet.publicnode.com',
       accounts: [
         process.env.EVM_TESTNET_KEY ??
+          '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+      ],
+    },
+    polygon: {
+      url: 'https://polygon-rpc.com',
+      accounts: [
+        process.env.EVM_MAINNET_KEY ??
+          '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+      ],
+    },
+    fantom: {
+      url: 'https://rpcapi.fantom.network',
+      accounts: [
+        process.env.EVM_MAINNET_KEY ??
+          '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+      ],
+    },
+    moonbeam: {
+      url: 'https://moonbeam.public.blastapi.io',
+      accounts: [
+        process.env.EVM_MAINNET_KEY ??
           '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
       ],
     },
