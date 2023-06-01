@@ -16,8 +16,11 @@ export async function linkNetworks(
     throw 'Link already exists';
   }
 
-  const targets = readdirSync('../deployment')
-    .map((x) => JSON.parse(readFileSync(x, 'utf-8')) as Deployment)
+  const targets = readdirSync('deployment')
+    .map(
+      (x) =>
+        JSON.parse(readFileSync(`deployment/${x}`, 'utf-8')) as Deployment
+    )
     .filter((x) => x.contractChainId != sourceContractChainId)
     .map((x) => {
       return {

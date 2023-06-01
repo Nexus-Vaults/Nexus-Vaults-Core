@@ -4,11 +4,18 @@ import 'hardhat-contract-sizer';
 import '@nomicfoundation/hardhat-chai-matchers';
 
 import { quickDeploy } from './scripts/quickDeploy';
+import { linkNetworks } from './scripts/linkNetworks';
 
 task('quickDeploy')
   .addParam('contractChainId', undefined, undefined, types.int)
   .setAction(async (params, hre) => {
     await quickDeploy(hre, params.contractChainId);
+  });
+
+task('linkNetworks')
+  .addParam('contractChainId', undefined, undefined, types.int)
+  .setAction(async (params, hre) => {
+    await linkNetworks(hre, params.contractChainId);
   });
 
 const config: HardhatUserConfig = {
