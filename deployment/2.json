@@ -6,5 +6,10 @@
   "nexusGatewayAddress": "0x3548a4e05Fd6008C527296EAe93C06Fc81EBafc2",
   "publicCatalogAddress": "0xaec6DF3bd5C83ee5a0C84b06af976bbF9662d783",
   "vaultV1FacetAddress": "0x6752A10E44F28F8D09244A600F50ba57169FCD2b",
-  "links": []
+  "links": [
+    {
+      "targetContractChainId": 1,
+      "targetGatewayAddress": "0x480C2b69B1F9a7737806D585608345c2aB7e4899"
+    }
+  ]
 }
