@@ -85,6 +85,12 @@ contract VaultV1Facet is IDiamondFacet, IVaultV1Facet {
     );
   }
 
+  function addLocalAcceptedGateway(
+    uint32 gatewayId
+  ) external onlyDelegateCall onlyDiamondOwner {
+    vaultController.addLocalAcceptedGateway(gatewayId);
+  }
+
   function addAcceptedGateway(
     uint16 destinationChainId,
     uint32 transmitUsingGatewayId,

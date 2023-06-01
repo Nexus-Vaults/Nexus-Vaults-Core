@@ -61,6 +61,14 @@ contract VaultV1Controller is
     );
   }
 
+  function addLocalAcceptedGateway(
+    uint32 gatewayId
+  ) external onlyFacetOwners {
+    bytes32 nexusId = keccak256(abi.encodePacked(msg.sender));
+
+    _addAcceptedGatewayToNexus(nexusId, gatewayId);
+  }
+
   function addAcceptedGateway(
     uint16 destinationChainId,
     uint32 transmitUsingGatewayId,

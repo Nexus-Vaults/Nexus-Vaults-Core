@@ -10,6 +10,8 @@ interface IVaultV1Facet {
     uint32 vaultId
   ) external payable;
 
+  function addLocalAcceptedGateway(uint32 gatewayId) external;
+
   function addAcceptedGateway(
     uint16 destinationChainId,
     uint32 transmitUsingGatewayId,
