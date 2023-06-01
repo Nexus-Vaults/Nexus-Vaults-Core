@@ -15,6 +15,7 @@ error AlreadyInitialized();
 error NotInitialized();
 error RouteAlreadyDefined(uint16 chainId);
 error NoRouteDefined();
+error SenderNotAuthorized();
 
 contract NexusGateway is
   BaseNexusGateway,
@@ -83,9 +84,12 @@ contract NexusGateway is
   function sendPacketTo(
     uint16 chainId,
     bytes memory payload
-  ) external payable onlyOwner {
+  ) external payable {
     if (!isReady()) {
       revert NotInitialized();
+    }
+    if (msg.sender != address(vaultGatewayAdapater)) {
+      revert SenderNotAuthorized();
     }
 
     if (chainId == currentChainId) {

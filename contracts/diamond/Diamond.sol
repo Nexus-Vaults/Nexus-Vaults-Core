@@ -34,9 +34,11 @@ contract Diamond {
       address oldFacetAddress = ds
         .facetAddressAndSelectorPosition[selector]
         .facetAddress;
+
       if (oldFacetAddress != address(0)) {
         revert CannotInstallSelectorThatAlreadyExists(selector);
       }
+      
       ds.facetAddressAndSelectorPosition[selector] = LibDiamond
         .FacetAddressAndSelectorPosition(facetAddress, selectorCount);
       ds.selectors.push(selector);
