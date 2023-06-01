@@ -26,12 +26,13 @@ contract VaultV1Facet is IDiamondFacet, IVaultV1Facet {
   }
 
   function getSelectors() external pure returns (bytes4[] memory) {
-    bytes4[] memory selectors = new bytes4[](4);
+    bytes4[] memory selectors = new bytes4[](5);
 
     selectors[0] = this.createVaultV1.selector;
-    selectors[1] = this.addAcceptedGateway.selector;
-    selectors[2] = this.sendPayment.selector;
-    selectors[3] = this.bridgeOut.selector;
+    selectors[1] = this.addLocalAcceptedGateway.selector;
+    selectors[2] = this.addAcceptedGateway.selector;
+    selectors[3] = this.sendPayment.selector;
+    selectors[4] = this.bridgeOut.selector;
 
     return selectors;
   }
