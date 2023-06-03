@@ -49,7 +49,7 @@ contract VaultV1Controller is
     uint32 transmitUsingGatewayId,
     uint32 vaultId
   ) external payable onlyFacetOwners {
-    bytes32 nexusId = keccak256(abi.encodePacked(msg.sender));
+    bytes32 nexusId = _makeNexusId(msg.sender);
     bytes memory innerPayload = abi.encode(vaultId);
 
     _sendPacket(
@@ -64,7 +64,7 @@ contract VaultV1Controller is
   function addLocalAcceptedGateway(
     uint32 gatewayId
   ) external onlyFacetOwners {
-    bytes32 nexusId = keccak256(abi.encodePacked(msg.sender));
+    bytes32 nexusId = _makeNexusId(msg.sender);
 
     _addAcceptedGatewayToNexus(nexusId, gatewayId);
   }
@@ -377,6 +377,6 @@ contract VaultV1Controller is
   function _makeNexusId(
     address nexusAddress
   ) internal view returns (bytes32) {
-    return keccak256(abi.encode(currentChainId, nexusAddress));
+    return keccak256(abi.encodePacked(currentChainId, nexusAddress));
   }
 }
