@@ -21,6 +21,8 @@ error GatewayBalanceTooLow(
 error AvailableBalanceTooLow(bytes32 nexusId, uint32 vaultId);
 
 abstract contract BaseVaultV1Controller is ERC165Consumer, Ownable {
+  event NexusInitialized(bytes32 nexusId, uint32 initialGatewayId);
+
   struct NexusRecord {
     bool isInitialized;
     mapping(uint256 => VaultRecord) vaults;
@@ -117,6 +119,13 @@ abstract contract BaseVaultV1Controller is ERC165Consumer, Ownable {
     if (totalBalance - tokenRecord.bridgedBalance < minimumBalance) {
       revert AvailableBalanceTooLow(nexusId, vaultId);
     }
+  }
+
+  function _initializeNexus(bytes32 nexusId, uint32 gatewayId) internal {
+    emit NexusInitialized(nexusId, gatewayId);
+
+    nexusVaults[nexusId].isInitialized = true;
+    _addAcceptedGatewayToNexus(nexusId, gatewayId);
   }
 
   function _addAcceptedGatewayToNexus(

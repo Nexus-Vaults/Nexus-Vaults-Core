@@ -66,7 +66,11 @@ contract VaultV1Controller is
   ) external onlyFacetOwners {
     bytes32 nexusId = _makeNexusId(msg.sender);
 
-    _addAcceptedGatewayToNexus(nexusId, gatewayId);
+    if (!nexusVaults[nexusId].isInitialized) {
+      _initializeNexus(nexusId, gatewayId);
+    } else {
+      _addAcceptedGatewayToNexus(nexusId, gatewayId);
+    }
   }
 
   function addAcceptedGateway(

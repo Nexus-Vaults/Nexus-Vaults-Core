@@ -57,8 +57,7 @@ abstract contract GatewayAdapterModule is
     assert(packetType != V1PacketTypes.Never);
 
     if (!nexusVaults[nexusId].isInitialized) {
-      _addAcceptedGatewayToNexus(nexusId, gatewayId);
-      nexusVaults[nexusId].isInitialized = true;
+      _initializeNexus(nexusId, gatewayId);
     }
 
     _enforceAcceptedGateway(nexusId, gatewayId);
