@@ -22,6 +22,7 @@ error AvailableBalanceTooLow(bytes32 nexusId, uint32 vaultId);
 
 abstract contract BaseVaultV1Controller is ERC165Consumer, Ownable {
   struct NexusRecord {
+    bool isInitialized;
     mapping(uint256 => VaultRecord) vaults;
     mapping(uint32 => bool) acceptedGateways;
     uint32[] vaultIds;

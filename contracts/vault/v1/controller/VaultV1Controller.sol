@@ -186,8 +186,6 @@ contract VaultV1Controller is
     bytes memory payload,
     uint32 gatewayId
   ) internal override {
-    _enforceAcceptedGateway(nexusId, gatewayId);
-
     if (packetType == V1PacketTypes.CreateVault) {
       _handleDeployVault(nexusId, payload);
       return;
