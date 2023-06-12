@@ -14,8 +14,8 @@ import {
 export interface Deployment {
   contractChainId: number;
 
-  deployer: Signer;
-  deployerAddress: string;
+  contractDeployer: Signer;
+  contractDeployerAddress: string;
   treasury: Signer;
   treasuryAddress: string;
   bystander: Signer;
@@ -29,107 +29,116 @@ export interface Deployment {
   vaultV1Facet: VaultV1Facet;
   nexusGateway: NexusGateway;
   nexusFactory: NexusFactory;
-  nexus: Nexus;
-  diamondLoupeFacet: DiamondLoupeFacet;
 }
 
 export async function deploy() {
-  const deployer = (await ethers.getSigners())[0];
+  const contractDeployer = (await ethers.getSigners())[0];
   const treasury = (await ethers.getSigners())[1];
   const bystander = (await ethers.getSigners())[2];
   const nexusOwner = (await ethers.getSigners())[3];
 
-  const deployerAddress = await deployer.getAddress();
+  const contractDeployerAddress = await contractDeployer.getAddress();
   const treasuryAddress = await treasury.getAddress();
   const bystanderAddress = await bystander.getAddress();
   const nexusOwnerAddress = await nexusOwner.getAddress();
 
-  const FeeToken = await ethers.getContractFactory('MockERC20', deployer);
+  const FeeToken = await ethers.getContractFactory(
+    'MockERC20',
+    contractDeployer
+  );
   const feeToken = await FeeToken.deploy({});
 
-  const FacetCatalog = await ethers.getContractFactory(
-    'FacetCatalog',
-    deployer
+  const Deployer = await ethers.getContractFactory(
+    'Deployer',
+    contractDeployer
   );
-  const facetCatalog = await FacetCatalog.deploy(treasuryAddress);
-
-  const VaultController = await ethers.getContractFactory(
-    'VaultV1Controller',
-    deployer
-  );
-  const vaultController = await VaultController.deploy(
-    1,
-    facetCatalog.address
-  );
-
-  const vaultFacet = await ethers.getContractAt(
-    'VaultV1Facet',
-    await vaultController.facetAddress(),
-    deployer
-  );
-  await facetCatalog
-    .connect(treasury)
-    .addOffering(
-      vaultFacet.address,
-      feeToken.address,
-      10000000000000000000n
-    );
-
-  const NexusGateway = await ethers.getContractFactory(
-    'NexusGateway',
-    deployer
-  );
-  const nexusGateway = await NexusGateway.deploy(
-    1,
-    vaultController.address,
-    '0x0000000000000000000000000000000000000001',
-    '0x0000000000000000000000000000000000000001'
-  );
-
-  await vaultController.addApprovedGateway(nexusGateway.address);
-
-  await nexusGateway.initialize([]);
+  const deployer = await Deployer.deploy();
 
   const DiamondLoupeFacet = await ethers.getContractFactory(
-    'DiamondLoupeFacet',
-    deployer
+    'DiamondLoupeFacet'
   );
-  const diamondLoupeFacet = await DiamondLoupeFacet.deploy();
 
-  const NexusFactory = await ethers.getContractFactory(
-    'NexusFactory',
-    deployer
+  await deployer.deployContract(DiamondLoupeFacet.bytecode, '0x');
+
+  const NexusFactory = await ethers.getContractFactory('NexusFactory');
+
+  await deployer.deployContract(
+    NexusFactory.bytecode,
+    new ethers.utils.AbiCoder().encode(
+      ['address', 'uint256', 'address'],
+      [feeToken.address, 0, treasuryAddress]
+    )
   );
-  const nexusFactory = await NexusFactory.deploy(
-    diamondLoupeFacet.address,
+
+  const FacetCatalog = await ethers.getContractFactory('FacetCatalog');
+
+  await deployer.deployContract(
+    FacetCatalog.bytecode,
+    new ethers.utils.AbiCoder().encode(['address'], [treasuryAddress])
+  );
+
+  const facetCatalog = await ethers.getContractAt(
+    'FacetCatalog',
+    await deployer.getDeployedAddress(FacetCatalog.bytecode),
+    contractDeployer
+  );
+
+  const VaultV1Controller = await ethers.getContractFactory(
+    'VaultV1Controller',
+    contractDeployer
+  );
+
+  console.log('2');
+  await deployer.deployContract(VaultV1Controller.bytecode, '0x');
+  console.log('3');
+  const vaultV1Controller = await ethers.getContractAt(
+    'VaultV1Controller',
+    await deployer.getDeployedAddress(VaultV1Controller.bytecode)
+  );
+
+  const NexusGateway = await ethers.getContractFactory('NexusGateway');
+
+  await deployer.deployContract(
+    NexusGateway.bytecode,
+    new ethers.utils.AbiCoder().encode(
+      ['uint16', 'address', 'address', 'address', 'address'],
+      [
+        1,
+        vaultV1Controller.address,
+        '0x0000000000000000000000000000000000000000',
+        '0x0000000000000000000000000000000000000000',
+        treasuryAddress,
+      ]
+    )
+  );
+  console.log('4');
+  const nexusGateway = await ethers.getContractAt(
+    'NexusGateway',
+    await deployer.getDeployedAddress(NexusGateway.bytecode)
+  );
+
+  await vaultV1Controller.addApprovedGateway(nexusGateway.address);
+
+  await facetCatalog.addOffering(
+    await vaultV1Controller.facetAddress(),
     feeToken.address,
-    0,
-    treasuryAddress
+    0
   );
 
-  const nexusAddress = await nexusFactory
-    .connect(deployer)
-    .callStatic.create('TEST_NEXUS', nexusOwnerAddress, []);
-
-  await nexusFactory
-    .connect(deployer)
-    .create('TEST_NEXUS', nexusOwnerAddress, [
-      {
-        catalog: facetCatalog.address,
-        facet: vaultFacet.address,
-      },
-    ]);
-
-  const nexus = await ethers.getContractAt(
-    'Nexus',
-    nexusAddress,
-    deployer
+  const nexusFactory = await ethers.getContractAt(
+    'NexusFactory',
+    await deployer.getDeployedAddress(NexusFactory.bytecode)
+  );
+  console.log('5');
+  const vaultV1Facet = await ethers.getContractAt(
+    'VaultV1Facet',
+    await vaultV1Controller.facetAddress()
   );
 
   return {
     contractChainId: 1,
-    deployer: deployer,
-    deployerAddress: deployerAddress,
+    contractDeployer: contractDeployer,
+    contractDeployerAddress: contractDeployer.address,
     treasury: treasury,
     treasuryAddress: treasuryAddress,
     bystander: bystander,
@@ -140,10 +149,8 @@ export async function deploy() {
     feeToken: feeToken,
     nexusFactory: nexusFactory,
     nexusGateway: nexusGateway,
-    vaultController: vaultController,
-    vaultV1Facet: vaultFacet,
-    nexus: nexus,
-    diamondLoupeFacet: diamondLoupeFacet,
+    vaultController: vaultV1Controller,
+    vaultV1Facet: vaultV1Facet,
   } as Deployment;
 }
 
