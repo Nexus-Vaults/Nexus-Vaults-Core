@@ -10,16 +10,13 @@ export async function quickDeploy(
     ? getDeploymentParametersTestnet(contractChainId)
     : getDeploymentParametersMainnet(contractChainId);
 
-  await deployNetwork(
-    hre,
-    contractChainId,
-    parameters.feeTokenAddress,
-    0,
-    parameters.axelarGatewayAddress,
-    parameters.axelarGasServiceAddress,
-    parameters.axelarChainName,
-    0
-  );
+  await deployNetwork(hre, {
+    contractChainId: contractChainId,
+    nexusCreationFeeAmount: 0,
+    vaultV1FacetFeeAmount: 0,
+    isTestnet: testnet,
+    ...parameters,
+  });
 }
 
 interface DeploymentParameters {
@@ -48,6 +45,15 @@ function getDeploymentParametersTestnet(
       axelarGasServiceAddress:
         '0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6',
       axelarChainName: 'Polygon',
+    };
+  }
+  if (contractChainId == 3) {
+    return {
+      feeTokenAddress: '0x272061e3076d100896cddd5f9437b9f55a8cc091',
+      axelarGatewayAddress: '0x5769D84DD62a6fD969856c75c7D321b84d455929',
+      axelarGasServiceAddress:
+        '0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6',
+      axelarChainName: 'Moonbeam',
     };
   }
 

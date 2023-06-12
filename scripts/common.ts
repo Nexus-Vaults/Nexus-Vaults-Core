@@ -1,20 +1,39 @@
-export interface Deployment {
+export interface ChainDeployment {
   contractChainId: number;
   axelarChainName: string;
 
-  nexusFactoryAddress: string;
+  deployerAddress: string;
 
-  vaultV1ControllerAddress: string;
+  diamondLoupeFacetAddress?: string | null;
+  nexusFactoryAddress?: string | null;
+  vaultV1ControllerAddress?: string | null;
+  publicCatalogAddress?: string | null;
+  vaultV1FacetAddress?: string | null;
+  nexusGatewayAddress?: string | null;
+  gatewayVaultControllerLinked: boolean;
 
-  publicCatalogAddress: string;
-  vaultV1FacetAddress: string;
-
-  nexusGatewayAddress: string;
-
-  links: Link[];
+  links: GatewayLink[];
+  facetListings: FacetListing[];
 }
 
-export interface Link {
+export interface GatewayLink {
   targetContractChainId: number;
   targetGatewayAddress: string;
+}
+
+export interface FacetListing {
+  facetAddress: string;
+  feeToken: string;
+  feeAmount: number;
+}
+
+export interface ChainDeploymentParameters {
+  contractChainId: number;
+  feeTokenAddress: string;
+  nexusCreationFeeAmount: number;
+  axelarGatewayAddress: string;
+  axelarGasServiceAddress: string;
+  axelarChainName: string;
+  vaultV1FacetFeeAmount: number;
+  isTestnet: boolean;
 }

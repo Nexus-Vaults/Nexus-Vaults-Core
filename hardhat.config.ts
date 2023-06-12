@@ -2,9 +2,11 @@ import { HardhatUserConfig, task, types } from 'hardhat/config';
 import '@nomicfoundation/hardhat-toolbox';
 import 'hardhat-contract-sizer';
 import '@nomicfoundation/hardhat-chai-matchers';
+import 'hardhat-change-network';
 
 import { quickDeploy } from './scripts/quickDeploy';
 import { linkNetworks } from './scripts/linkNetworks';
+import { instaDeploy } from './scripts/instaDeploy';
 
 task('quickDeploy')
   .addParam('contractChainId', undefined, undefined, types.int)
@@ -15,8 +17,15 @@ task('quickDeploy')
 
 task('linkNetworks')
   .addParam('contractChainId', undefined, undefined, types.int)
+  .addParam('mainnet', undefined, undefined, types.boolean, false)
   .setAction(async (params, hre) => {
-    await linkNetworks(hre, params.contractChainId);
+    await linkNetworks(hre, params.contractChainId, !params.mainnet);
+  });
+
+task('instaDeploy')
+  .addParam('mainnet', undefined, undefined, types.boolean, false)
+  .setAction(async (params, hre) => {
+    await instaDeploy(hre, !params.mainnet);
   });
 
 const config: HardhatUserConfig = {
@@ -32,6 +41,7 @@ const config: HardhatUserConfig = {
   etherscan: {
     apiKey: {
       ftmTestnet: 'NGHI15HQVP2KQCKKEKX5NNK94BZ774D618',
+      opera: 'NGHI15HQVP2KQCKKEKX5NNK94BZ774D618',
       polygonMumbai: '72KJ5YSN3GSYKWW1DAW4KIWUZW7K9P2KPS',
     },
   },
@@ -60,6 +70,13 @@ const config: HardhatUserConfig = {
     },
     bsc_testnet: {
       url: 'https://bsc-testnet.publicnode.com',
+      accounts: [
+        process.env.EVM_TESTNET_KEY ??
+          '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+      ],
+    },
+    moonbeam_testnet: {
+      url: 'https://rpc.api.moonbase.moonbeam.network',
       accounts: [
         process.env.EVM_TESTNET_KEY ??
           '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',

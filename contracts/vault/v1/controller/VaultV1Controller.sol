@@ -9,6 +9,7 @@ import {BaseVaultV1Controller} from './BaseVaultV1Controller.sol';
 import {IFacetCatalog} from '../../../catalog/IFacetCatalog.sol';
 import {VaultV1Facet} from '../facet/VaultV1Facet.sol';
 import {IOUTokenRecord} from './modules/IOUTokenModule.sol';
+import {IDeployer} from '../../../deployer/IDeployer.sol';
 
 import {VaultFactoryModule} from './modules/VaultFactoryModule.sol';
 import {GatewayAdapterModule} from './modules/GatewayAdapterModule.sol';
@@ -33,16 +34,47 @@ contract VaultV1Controller is
   using StringToAddress for string;
   using AddressToString for address;
 
-  constructor(
-    uint16 _currentChainId,
-    IFacetCatalog _facetCatalog
-  )
+  constructor()
     BaseVaultV1Controller(
-      _currentChainId,
-      _facetCatalog,
+      _decodeCurrentChainIdParam(),
+      _decodeFacetCatalogParam(),
       address(new VaultV1Facet(address(this)))
     )
-  {}
+  {
+    IDeployer deployer = IDeployer(msg.sender);
+    bytes memory args = deployer.getCurrentDeploymentArgs();
+
+    (, , address _owner) = abi.decode(
+      args,
+      (uint16, IFacetCatalog, address)
+    );
+
+    _transferOwnership(_owner);
+  }
+
+  function _decodeFacetCatalogParam()
+    internal
+    view
+    returns (IFacetCatalog)
+  {
+    IDeployer deployer = IDeployer(msg.sender);
+    bytes memory args = deployer.getCurrentDeploymentArgs();
+    (, IFacetCatalog _facetCatalog, ) = abi.decode(
+      args,
+      (uint16, IFacetCatalog, address)
+    );
+    return _facetCatalog;
+  }
+
+  function _decodeCurrentChainIdParam() internal view returns (uint16) {
+    IDeployer deployer = IDeployer(msg.sender);
+    bytes memory args = deployer.getCurrentDeploymentArgs();
+    (uint16 _currentChainId, , ) = abi.decode(
+      args,
+      (uint16, IFacetCatalog, address)
+    );
+    return _currentChainId;
+  }
 
   function deployVault(
     uint16 destinationChainId,

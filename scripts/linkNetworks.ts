@@ -1,34 +1,47 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { readFileSync, readdirSync, writeFileSync } from 'fs';
-import { Deployment } from './common';
+import { ChainDeployment } from './common';
 
 export async function linkNetworks(
   hre: HardhatRuntimeEnvironment,
-  sourceContractChainId: number
+  sourceContractChainId: number,
+  isTestnet: boolean
 ) {
+  const basePath = isTestnet ? 'deployment/testnet' : 'deployment/mainnet';
+
   const { ethers } = hre;
 
   const deployment = JSON.parse(
-    readFileSync(`deployment/${sourceContractChainId}.json`, 'utf8')
-  ) as Deployment;
+    readFileSync(`${basePath}/${sourceContractChainId}.json`, 'utf8')
+  ) as ChainDeployment;
 
   if (deployment.links.length > 0) {
-    throw 'Link already exists';
+    return;
   }
 
-  const targets = readdirSync('deployment')
+  const targets = readdirSync(basePath)
     .map(
       (x) =>
-        JSON.parse(readFileSync(`deployment/${x}`, 'utf-8')) as Deployment
+        JSON.parse(
+          readFileSync(`${basePath}/${x}`, 'utf-8')
+        ) as ChainDeployment
     )
     .filter((x) => x.contractChainId != sourceContractChainId)
     .map((x) => {
+      if (x.nexusGatewayAddress == null) {
+        throw 'Missing NexusGatewayAddress';
+      }
+
       return {
         chainId: x.contractChainId,
         chainName: x.axelarChainName,
         gatewayAddress: x.nexusGatewayAddress,
       };
     });
+
+  if (deployment.nexusGatewayAddress == null) {
+    throw 'Deployment has no NexusGatewayAddress';
+  }
 
   const nexusGateway = await ethers.getContractAt(
     'NexusGateway',
@@ -47,7 +60,7 @@ export async function linkNetworks(
   });
 
   writeFileSync(
-    `deployment/${sourceContractChainId}.json`,
+    `${basePath}/${sourceContractChainId}.json`,
     JSON.stringify(deployment),
     {
       encoding: 'utf-8',

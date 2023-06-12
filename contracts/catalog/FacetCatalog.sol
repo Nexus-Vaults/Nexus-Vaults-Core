@@ -2,15 +2,17 @@
 pragma solidity ^0.8.18;
 
 import {IFacetCatalog} from './IFacetCatalog.sol';
+import {IDeployer} from '../deployer/IDeployer.sol';
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
+import {ERC1155} from '@openzeppelin/contracts/token/ERC1155/ERC1155.sol';
 
 error FacetNotAvailable();
 error FacetAlreadyAvailable();
 error FeeTransferFailed();
 
 //ToDo: Make ERC1155
-contract FacetCatalog is IFacetCatalog, Ownable {
+contract FacetCatalog is ERC1155, IFacetCatalog, Ownable {
   struct FacetOffering {
     bool available;
     IERC20 feeToken;
@@ -39,8 +41,12 @@ contract FacetCatalog is IFacetCatalog, Ownable {
 
   mapping(address => FacetOffering) public offerings;
 
-  constructor(address treasuryAddress) {
-    _transferOwnership(treasuryAddress);
+  constructor() ERC1155('') {
+    IDeployer deployer = IDeployer(msg.sender);
+    bytes memory args = deployer.getCurrentDeploymentArgs();
+    address _treasuryAddress = abi.decode(args, (address));
+
+    _transferOwnership(_treasuryAddress);
   }
 
   function hasPurchased(
@@ -73,12 +79,23 @@ contract FacetCatalog is IFacetCatalog, Ownable {
     }
 
     offerings[facetAddress].hasBought[msg.sender] = true;
+    _mint(
+      msg.sender,
+      uint256(keccak256(abi.encodePacked(facetAddress))),
+      1,
+      ''
+    );
+
     emit FacetPurchased(
       msg.sender,
       facetAddress,
       offerings[facetAddress].feeToken,
       offerings[facetAddress].feeAmount
     );
+  }
+
+  function setMetadataURI(string memory metadataURI) external onlyOwner {
+    _setURI(metadataURI);
   }
 
   function addOffering(

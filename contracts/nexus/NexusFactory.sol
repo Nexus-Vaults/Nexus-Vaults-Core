@@ -5,6 +5,7 @@ import {Nexus} from './Nexus.sol';
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 import {IFacetCatalog} from '../catalog/IFacetCatalog.sol';
+import {IDeployer} from '../deployer/IDeployer.sol';
 
 error FeeTransferFailed();
 
@@ -15,7 +16,6 @@ contract NexusFactory is Ownable {
   Nexus[] public deployedContracts;
   mapping(address => bool) public hasDeployed;
 
-  address private diamondLoupeFacet;
   IERC20 public feeToken;
   uint256 public feeAmount;
 
@@ -24,14 +24,15 @@ contract NexusFactory is Ownable {
     address facet;
   }
 
-  constructor(
-    address _diamondLoupeFacet,
-    IERC20 _feeToken,
-    uint256 _feeAmount,
-    address _treasuryAddress
-  ) {
+  constructor() {
+    IDeployer deployer = IDeployer(msg.sender);
+    bytes memory args = deployer.getCurrentDeploymentArgs();
+
+    (IERC20 _feeToken, uint256 _feeAmount, address _treasuryAddress) = abi
+      .decode(args, (IERC20, uint256, address));
+
     _transferOwnership(_treasuryAddress);
-    diamondLoupeFacet = _diamondLoupeFacet;
+
     feeToken = _feeToken;
     feeAmount = _feeAmount;
   }
@@ -46,7 +47,6 @@ contract NexusFactory is Ownable {
     }
 
     Nexus nexus = new Nexus(name);
-    nexus.installFacet(diamondLoupeFacet);
 
     for (uint256 i = 0; i < facets.length; i++) {
       FacetInstallation calldata facet = facets[i];

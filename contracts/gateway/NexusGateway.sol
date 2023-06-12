@@ -5,6 +5,7 @@ import {BaseNexusGateway} from './BaseNexusGateway.sol';
 import {AxelarPacketGateway} from './axelar/AxelarPacketGateway.sol';
 import {INexusGateway} from './INexusGateway.sol';
 import {IVaultGatewayAdapater} from '../vault/IVaultGatewayAdapater.sol';
+import {IDeployer} from '../deployer/IDeployer.sol';
 
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 import {IERC165} from '@openzeppelin/contracts/utils/introspection/IERC165.sol';
@@ -35,14 +36,74 @@ contract NexusGateway is
 
   mapping(uint16 => RouteType) public routeTypes;
 
-  constructor(
-    uint16 _currentChainId,
-    IVaultGatewayAdapater _vaultGatewayAdapater,
-    IAxelarGateway axelarGateway,
-    IAxelarGasService axelarGasService
-  ) AxelarPacketGateway(axelarGateway, axelarGasService) {
+  constructor()
+    AxelarPacketGateway(
+      _decodeAxelarGatewayParam(),
+      _decodeAxelarGasServiceParam()
+    )
+  {
+    IDeployer deployer = IDeployer(msg.sender);
+    bytes memory args = deployer.getCurrentDeploymentArgs();
+    (
+      uint16 _currentChainId,
+      IVaultGatewayAdapater _vaultGatewayAdapater,
+      ,
+      ,
+      address _owner
+    ) = abi.decode(
+        args,
+        (
+          uint16,
+          IVaultGatewayAdapater,
+          IAxelarGateway,
+          IAxelarGasService,
+          address
+        )
+      );
+
+    _transferOwnership(_owner);
     currentChainId = _currentChainId;
     vaultGatewayAdapater = _vaultGatewayAdapater;
+  }
+
+  function _decodeAxelarGatewayParam()
+    internal
+    view
+    returns (IAxelarGateway)
+  {
+    IDeployer deployer = IDeployer(msg.sender);
+    bytes memory args = deployer.getCurrentDeploymentArgs();
+    (, , IAxelarGateway _axelarGateway, , ) = abi.decode(
+      args,
+      (
+        uint16,
+        IVaultGatewayAdapater,
+        IAxelarGateway,
+        IAxelarGasService,
+        address
+      )
+    );
+    return _axelarGateway;
+  }
+
+  function _decodeAxelarGasServiceParam()
+    internal
+    view
+    returns (IAxelarGasService)
+  {
+    IDeployer deployer = IDeployer(msg.sender);
+    bytes memory args = deployer.getCurrentDeploymentArgs();
+    (, , , IAxelarGasService _axelarGasService, ) = abi.decode(
+      args,
+      (
+        uint16,
+        IVaultGatewayAdapater,
+        IAxelarGateway,
+        IAxelarGasService,
+        address
+      )
+    );
+    return _axelarGasService;
   }
 
   struct AxelarRoute {
