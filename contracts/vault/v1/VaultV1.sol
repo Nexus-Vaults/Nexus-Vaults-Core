@@ -81,4 +81,6 @@ contract VaultV1 {
 
     return balances;
   }
+
+  receive() external payable {}
 }
