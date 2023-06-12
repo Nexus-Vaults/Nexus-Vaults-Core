@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 
 import {BaseVaultV1Controller} from '../BaseVaultV1Controller.sol';
 import {VaultV1} from '../../VaultV1.sol';
-import {V1TokenInfo} from "../../V1TokenInfo.sol";
+import {V1TokenInfo} from '../../V1TokenInfo.sol';
 
 error VaultDoesNotExist(bytes32 nexusId, uint256 vaultId);
 
@@ -29,15 +29,27 @@ abstract contract InspectorModule is BaseVaultV1Controller {
     return vaults;
   }
 
-  function aggregateBalances(bytes32 nexusId, V1TokenInfo[] memory tokens) external view returns (uint256[] memory) {
+  function aggregateBalances(
+    bytes32 nexusId,
+    V1TokenInfo[] memory tokens
+  ) external view returns (uint256[] memory) {
     uint256[] memory balances = new uint256[](tokens.length);
 
     NexusRecord storage nexus = nexusVaults[nexusId];
-    VaultInfo[] memory vaults = new VaultInfo[](nexus.vaultIds.length);
 
-    for(uint tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++) {
-      for (uint256 vaultIndex = 0; vaultIndex < nexus.vaultIds.length; vaultIndex++) {
-        balances[tokenIndex] += vaults[vaultIndex].vault.getBalance(tokens[tokenIndex].tokenType, tokens[tokenIndex].tokenIdentifier);
+    for (uint tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++) {
+      for (
+        uint256 vaultIndex = 0;
+        vaultIndex < nexus.vaultIds.length;
+        vaultIndex++
+      ) {
+        balances[tokenIndex] += nexus
+          .vaults[nexus.vaultIds[vaultIndex]]
+          .vault
+          .getBalance(
+            tokens[tokenIndex].tokenType,
+            tokens[tokenIndex].tokenIdentifier
+          );
       }
     }
 
