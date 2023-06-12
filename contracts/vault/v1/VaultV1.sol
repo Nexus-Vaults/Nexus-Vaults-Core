@@ -56,7 +56,7 @@ contract VaultV1 {
   function getBalance(
     V1TokenTypes tokenType,
     string calldata tokenIdentifier
-  ) external view returns (uint256) {
+  ) public view returns (uint256) {
     if (tokenType == V1TokenTypes.Native) {
       return address(this).balance;
     }
@@ -68,5 +68,20 @@ contract VaultV1 {
     }
 
     revert UnsupportedTokenType(tokenType);
+  }
+
+  struct TokenInfo {
+    V1TokenTypes tokenType;
+    string tokenIdentifier;
+  }
+
+  function getBalances(TokenInfo[] calldata tokens) external view returns (uint256[] memory) {
+    uint256[] memory balances = new uint256[](tokens.length);
+
+    for(uint i = 0; i < tokens.length; i++) {
+        balances[i] = getBalance(tokens[i].tokenType, tokens[i].tokenIdentifier);
+    }
+
+    return balances;
   }
 }
