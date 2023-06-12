@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 
 import {V1TokenTypes} from './V1TokenTypes.sol';
 import {StringToAddress} from '../../utils/StringAddressUtils.sol';
-import {V1TokenInfo} from "./V1TokenInfo.sol";
+import {V1TokenInfo} from './V1TokenInfo.sol';
 
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
@@ -41,17 +41,14 @@ contract VaultV1 {
       tokenIdentifier.toAddress() == address(0)
     ) {
       target.transfer(amount);
-      return;
-    }
-    if (tokenType == V1TokenTypes.ERC20) {
+    } else if (tokenType == V1TokenTypes.ERC20) {
       address tokenAddress = tokenIdentifier.toAddress();
       IERC20 token = IERC20(tokenAddress);
 
       token.transfer(target, amount);
-      return;
+    } else {
+      revert UnsupportedTokenType(tokenType);
     }
-
-    revert UnsupportedTokenType(tokenType);
   }
 
   function getBalance(
@@ -60,22 +57,26 @@ contract VaultV1 {
   ) public view returns (uint256) {
     if (tokenType == V1TokenTypes.Native) {
       return address(this).balance;
-    }
-    if (tokenType == V1TokenTypes.ERC20) {
+    } else if (tokenType == V1TokenTypes.ERC20) {
       address tokenAddress = tokenIdentifier.toAddress();
       IERC20 token = IERC20(tokenAddress);
 
       return token.balanceOf(address(this));
+    } else {
+      revert UnsupportedTokenType(tokenType);
     }
-
-    revert UnsupportedTokenType(tokenType);
   }
 
-  function getBalances(V1TokenInfo[] calldata tokens) external view returns (uint256[] memory) {
+  function getBalances(
+    V1TokenInfo[] calldata tokens
+  ) external view returns (uint256[] memory) {
     uint256[] memory balances = new uint256[](tokens.length);
 
-    for(uint i = 0; i < tokens.length; i++) {
-        balances[i] = getBalance(tokens[i].tokenType, tokens[i].tokenIdentifier);
+    for (uint i = 0; i < tokens.length; i++) {
+      balances[i] = getBalance(
+        tokens[i].tokenType,
+        tokens[i].tokenIdentifier
+      );
     }
 
     return balances;
