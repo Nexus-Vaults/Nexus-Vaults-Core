@@ -3,16 +3,17 @@ pragma solidity ^0.8.18;
 
 import {IFacetCatalog} from './IFacetCatalog.sol';
 import {IDeployer} from '../deployer/IDeployer.sol';
+import {SimpleERC1155} from './SimpleERC1155.sol';
+
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
-import {ERC1155} from '@openzeppelin/contracts/token/ERC1155/ERC1155.sol';
 
 error FacetNotAvailable();
 error FacetAlreadyAvailable();
 error FeeTransferFailed();
 
 //ToDo: Make ERC1155
-contract FacetCatalog is ERC1155, IFacetCatalog, Ownable {
+contract FacetCatalog is SimpleERC1155, IFacetCatalog, Ownable {
   struct FacetOffering {
     bool available;
     IERC20 feeToken;
@@ -41,7 +42,7 @@ contract FacetCatalog is ERC1155, IFacetCatalog, Ownable {
 
   mapping(address => FacetOffering) public offerings;
 
-  constructor() ERC1155('') {
+  constructor() SimpleERC1155('') {
     IDeployer deployer = IDeployer(msg.sender);
     bytes memory args = deployer.getCurrentDeploymentArgs();
     address _treasuryAddress = abi.decode(args, (address));
