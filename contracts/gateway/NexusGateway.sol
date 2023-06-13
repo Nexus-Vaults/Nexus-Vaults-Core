@@ -177,7 +177,10 @@ contract NexusGateway is
       revert NotInitialized();
     }
 
-    vaultGatewayAdapater.handlePacket(sourceChainId, message);
+    vaultGatewayAdapater.handlePacket{value: msg.value}(
+      sourceChainId,
+      message
+    );
   }
 
   function supportsInterface(
