@@ -34,9 +34,9 @@ interface IVaultV1Controller is IVaultController {
     uint32 transmitUsingGatewayId,
     uint32 vaultId,
     V1TokenTypes tokenType,
-    string calldata tokenIdentifier,
+    string memory tokenIdentifier,
+    uint32 destinationGatewayId,
     uint16 destinationChainId,
-    address destinationGatewayAddress,
     string memory target,
     uint256 amount
   ) external payable;

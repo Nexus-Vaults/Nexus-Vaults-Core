@@ -129,9 +129,9 @@ contract VaultV1Facet is IDiamondFacet, IVaultV1Facet {
     uint32 transmitUsingGatewayId,
     uint32 vaultId,
     V1TokenTypes tokenType,
-    string calldata tokenIdentifier,
+    string memory tokenIdentifier,
+    uint32 destinationGatewayId,
     uint16 destinationChainId,
-    address destinationGatewayAddress,
     string memory target,
     uint256 amount
   ) external payable onlyDelegateCall onlyDiamondOwner {
@@ -141,8 +141,8 @@ contract VaultV1Facet is IDiamondFacet, IVaultV1Facet {
       vaultId,
       tokenType,
       tokenIdentifier,
+      destinationGatewayId,
       destinationChainId,
-      destinationGatewayAddress,
       target,
       amount
     );

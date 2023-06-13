@@ -189,9 +189,9 @@ contract VaultV1Controller is
     uint32 transmitUsingGatewayId,
     uint32 vaultId,
     V1TokenTypes tokenType,
-    string calldata tokenIdentifier,
+    string memory tokenIdentifier,
+    uint32 destinationGatewayId,
     uint16 destinationChainId,
-    address destinationGatewayAddress,
     string memory target,
     uint256 amount
   ) external payable onlyFacetOwners {
@@ -200,7 +200,7 @@ contract VaultV1Controller is
       vaultId,
       tokenType,
       tokenIdentifier,
-      destinationGatewayAddress,
+      destinationGatewayId,
       destinationChainId,
       target,
       amount
@@ -345,8 +345,8 @@ contract VaultV1Controller is
       uint32 vaultId,
       V1TokenTypes tokenType,
       string memory tokenIdentifier,
-      uint32 targetGatewayId,
-      uint16 targetChainId,
+      uint32 destinationGatewayId,
+      uint16 destinationChainId,
       string memory target,
       uint256 amount
     ) = abi.decode(
@@ -354,7 +354,7 @@ contract VaultV1Controller is
         (uint32, V1TokenTypes, string, uint32, uint16, string, uint256)
       );
 
-    _enforceAcceptedGateway(nexusId, targetGatewayId);
+    _enforceAcceptedGateway(nexusId, destinationGatewayId);
     _enforceMinimumAvailableBalance(
       nexusId,
       vaultId,
@@ -368,14 +368,14 @@ contract VaultV1Controller is
       tokenType,
       tokenIdentifier,
       amount,
-      targetGatewayId
+      destinationGatewayId
     );
     _sendPacket(
-      targetChainId,
+      destinationChainId,
       V1PacketTypes.MintIOUTokens,
       nexusId,
       abi.encode(vaultId, tokenType, tokenIdentifier, target, amount),
-      targetGatewayId
+      destinationGatewayId
     );
   }
 
