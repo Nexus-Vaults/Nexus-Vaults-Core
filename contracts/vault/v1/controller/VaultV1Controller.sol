@@ -52,6 +52,10 @@ contract VaultV1Controller is
     _transferOwnership(_owner);
   }
 
+  function withdraw() external onlyOwner {
+    payable(msg.sender).transfer(address(this).balance);
+  }
+
   function _decodeFacetCatalogParam()
     internal
     view
