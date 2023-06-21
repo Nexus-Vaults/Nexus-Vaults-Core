@@ -1,1 +1,34 @@
-{"contractChainId":1,"deployerAddress":"0x26989ba711F1ec911Be3C045AF8C144E2E684310","axelarChainName":"Fantom","gatewayVaultControllerLinked":true,"links":[{"targetContractChainId":2,"targetGatewayAddress":"0x22B921B7958533f5fe36027AbDe6372662cAC6D2"},{"targetContractChainId":3,"targetGatewayAddress":"0x22B921B7958533f5fe36027AbDe6372662cAC6D2"}],"facetListings":[{"facetAddress":"0x32dE3eeA968C86ed78e073A6006Bd5E02Fd67027","feeToken":"0xf1277d1ed8ad466beddf92ef448a132661956621","feeAmount":0},{"facetAddress":"0x87264B86648603bFa7124FaB7d15717b01357edf","feeToken":"0xf1277d1ed8ad466beddf92ef448a132661956621","feeAmount":0}],"diamondLoupeFacetAddress":"0x32dE3eeA968C86ed78e073A6006Bd5E02Fd67027","nexusFactoryAddress":"0xCe7A32CC86a544dfA4234501ea96Af50AfCCE245","publicCatalogAddress":"0xF1EE55C36AE85AaD38EEabEB45e7d25145886B20","vaultV1ControllerAddress":"0x89F229aeA96C57fe8Bb35EB409d38F247aBB7930","vaultV1FacetAddress":"0x87264B86648603bFa7124FaB7d15717b01357edf","nexusGatewayAddress":"0x22B921B7958533f5fe36027AbDe6372662cAC6D2"}
+{
+  "contractChainId": 1,
+  "deployerAddress": "0xF6F4bA4c83F60F0d363baD46231b61F1f566b12e",
+  "axelarChainName": "Fantom",
+  "gatewayVaultControllerLinked": true,
+  "links": [
+    {
+      "targetContractChainId": 2,
+      "targetGatewayAddress": "0x03e179851F8A7Add8d3c1166a1bCAcCdEEE95912"
+    },
+    {
+      "targetContractChainId": 3,
+      "targetGatewayAddress": "0x03e179851F8A7Add8d3c1166a1bCAcCdEEE95912"
+    }
+  ],
+  "facetListings": [
+    {
+      "facetAddress": "0x2d180F463D76EB262bD07FFb405D4cFcB04599F3",
+      "feeToken": "0xf1277d1ed8ad466beddf92ef448a132661956621",
+      "feeAmount": 0
+    },
+    {
+      "facetAddress": "0x22c74c182d567F000CEAcD29DEFac84c21e05b56",
+      "feeToken": "0xf1277d1ed8ad466beddf92ef448a132661956621",
+      "feeAmount": 0
+    }
+  ],
+  "diamondLoupeFacetAddress": "0x2d180F463D76EB262bD07FFb405D4cFcB04599F3",
+  "nexusFactoryAddress": "0x556398b092bebB39e67b27BE5efAb5c8c49e0086",
+  "publicCatalogAddress": "0xA420eB7f26EAb8430c8f9669F2eBb89782136858",
+  "vaultV1ControllerAddress": "0x092bc558D17c8022939E5501E834c056fAd8F455",
+  "vaultV1FacetAddress": "0x22c74c182d567F000CEAcD29DEFac84c21e05b56",
+  "nexusGatewayAddress": "0x03e179851F8A7Add8d3c1166a1bCAcCdEEE95912"
+}
