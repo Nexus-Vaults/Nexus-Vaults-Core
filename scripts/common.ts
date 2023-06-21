@@ -5,10 +5,12 @@ export interface ChainDeployment {
   deployerAddress: string;
 
   diamondLoupeFacetAddress?: string | null;
+  vaultV1FacetAddress?: string | null;
+  batchPaymentsFacetAddress?: string | null;
+
   nexusFactoryAddress?: string | null;
   vaultV1ControllerAddress?: string | null;
   publicCatalogAddress?: string | null;
-  vaultV1FacetAddress?: string | null;
   nexusGatewayAddress?: string | null;
   gatewayVaultControllerLinked: boolean;
 
@@ -35,5 +37,6 @@ export interface ChainDeploymentParameters {
   axelarGasServiceAddress: string;
   axelarChainName: string;
   vaultV1FacetFeeAmount: number;
+  batchPaymentsV1FacetFeeAmount: number;
   isTestnet: boolean;
 }

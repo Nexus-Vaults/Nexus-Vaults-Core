@@ -14,6 +14,7 @@ export async function quickDeploy(
     contractChainId: contractChainId,
     nexusCreationFeeAmount: 0,
     vaultV1FacetFeeAmount: 0,
+    batchPaymentsV1FacetFeeAmount: 0,
     isTestnet: testnet,
     ...parameters,
   });

@@ -11,6 +11,7 @@ import {INexus} from '../../../nexus/INexus.sol';
 import {BaseVaultV1Controller} from './BaseVaultV1Controller.sol';
 import {IFacetCatalog} from '../../../catalog/IFacetCatalog.sol';
 import {VaultV1Facet} from '../facet/VaultV1Facet.sol';
+import {BatchPaymentsV1Facet} from '../facet/BatchPaymentsV1Facet.sol';
 import {IOUTokenRecord} from './modules/IOUTokenModule.sol';
 import {IDeployer} from '../../../deployer/IDeployer.sol';
 
@@ -41,7 +42,8 @@ contract VaultV1Controller is
     BaseVaultV1Controller(
       _decodeCurrentChainIdParam(),
       _decodeFacetCatalogParam(),
-      address(new VaultV1Facet(address(this)))
+      address(new VaultV1Facet(address(this))),
+      address(new BatchPaymentsV1Facet(address(this)))
     )
   {
     IDeployer deployer = IDeployer(msg.sender);
@@ -161,7 +163,7 @@ contract VaultV1Controller is
 
   function batchSendPayment(
     V1ChainBatchPayment[] calldata batchPayments
-  ) external payable onlyFacetOwners {
+  ) external payable onlyBatchPaymentFacetOwners {
     bytes32 nexusId = _makeNexusId(msg.sender);
 
     for (uint i = 0; i < batchPayments.length; i++) {

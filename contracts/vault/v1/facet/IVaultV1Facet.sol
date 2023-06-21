@@ -29,10 +29,6 @@ interface IVaultV1Facet {
     uint256 amount
   ) external payable;
 
-  function batchSendPayment(
-    V1ChainBatchPayment[] calldata batchPayments
-  ) external payable;
-
   function bridgeOut(
     uint16 targetChainId,
     uint32 transmitUsingGatewayId,

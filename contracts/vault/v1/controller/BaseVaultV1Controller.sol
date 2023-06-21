@@ -49,6 +49,8 @@ abstract contract BaseVaultV1Controller is ERC165Consumer, Ownable {
   uint16 public immutable currentChainId;
 
   address public immutable facetAddress;
+  address public immutable batchPaymentsFacetAddress;
+
   IFacetCatalog public immutable facetCatalog;
 
   mapping(INexusGateway => uint32) public gateways; //Valid if Id != 0
@@ -58,15 +60,24 @@ abstract contract BaseVaultV1Controller is ERC165Consumer, Ownable {
   constructor(
     uint16 _currentChainId,
     IFacetCatalog _facetCatalog,
-    address _facetAddress
+    address _facetAddress,
+    address _batchPaymentFacetAddress
   ) {
     currentChainId = _currentChainId;
     facetCatalog = _facetCatalog;
     facetAddress = _facetAddress;
+    batchPaymentsFacetAddress = _batchPaymentFacetAddress;
   }
 
   modifier onlyFacetOwners() {
     if (facetCatalog.hasPurchased(msg.sender, facetAddress)) {
+      revert FacetNotInstalled();
+    }
+    _;
+  }
+
+  modifier onlyBatchPaymentFacetOwners() {
+    if (facetCatalog.hasPurchased(msg.sender, batchPaymentsFacetAddress)) {
       revert FacetNotInstalled();
     }
     _;

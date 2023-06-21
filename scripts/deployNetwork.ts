@@ -189,6 +189,10 @@ export async function deployNetwork(
       deployment.vaultV1FacetAddress =
         await vaultV1Controller.facetAddress();
     }
+    if (deployment.batchPaymentsFacetAddress == null) {
+      deployment.batchPaymentsFacetAddress =
+        await vaultV1Controller.batchPaymentsFacetAddress();
+    }
 
     if (deployment.nexusGatewayAddress == null) {
       const NexusGateway = await ethers.getContractFactory('NexusGateway');
@@ -261,7 +265,27 @@ export async function deployNetwork(
       deployment.facetListings.push({
         facetAddress: deployment.vaultV1FacetAddress,
         feeToken: params.feeTokenAddress,
-        feeAmount: 0,
+        feeAmount: params.vaultV1FacetFeeAmount,
+      });
+    }
+
+    if (
+      deployment.batchPaymentsFacetAddress != null &&
+      !deployment.facetListings.some(
+        (x) => x.facetAddress == deployment!.batchPaymentsFacetAddress
+      )
+    ) {
+      console.log('Adding BatchPaymentsV1Facet offering...');
+      await facetCatalog.addOffering(
+        deployment.batchPaymentsFacetAddress,
+        params.feeTokenAddress,
+        params.batchPaymentsV1FacetFeeAmount
+      );
+
+      deployment.facetListings.push({
+        facetAddress: deployment.batchPaymentsFacetAddress,
+        feeToken: params.feeTokenAddress,
+        feeAmount: params.batchPaymentsV1FacetFeeAmount,
       });
     }
   } catch (error) {
