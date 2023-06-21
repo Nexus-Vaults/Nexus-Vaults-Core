@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 
 import {BaseVaultV1Controller} from '../BaseVaultV1Controller.sol';
 import {INexusGateway} from '../../../../gateway/INexusGateway.sol';
-import {V1PacketTypes} from '../../V1PacketTypes.sol';
+import {V1PacketTypes} from '../../types/V1PacketTypes.sol';
 import {IVaultGatewayAdapater} from '../../../IVaultGatewayAdapater.sol';
 
 error IncompatibleGateway();
@@ -76,13 +76,14 @@ abstract contract GatewayAdapterModule is
     V1PacketTypes packetType,
     bytes32 nexusId,
     bytes memory innerPayload,
-    uint32 transmitUsingGatewayId
+    uint32 transmitUsingGatewayId,
+    uint256 gasFeeAmount
   ) internal {
     INexusGateway gateway = gatewayVersions[transmitUsingGatewayId];
 
     _enforceAcceptedGateway(nexusId, transmitUsingGatewayId);
 
-    gateway.sendPacketTo{value: msg.value}(
+    gateway.sendPacketTo{value: gasFeeAmount}(
       destinationChainId,
       abi.encode(packetType, nexusId, innerPayload)
     );

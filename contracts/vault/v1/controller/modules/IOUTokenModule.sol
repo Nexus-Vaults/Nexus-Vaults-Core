@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import {V1TokenTypes} from '../../V1TokenTypes.sol';
+import {V1TokenTypes} from '../../types/V1TokenTypes.sol';
 
 import {IOUToken} from '../../../../iou/IOUToken.sol';
 

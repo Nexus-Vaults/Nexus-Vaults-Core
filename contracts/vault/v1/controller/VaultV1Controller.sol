@@ -2,8 +2,11 @@
 pragma solidity ^0.8.18;
 
 import {IVaultV1Controller} from './IVaultV1Controller.sol';
-import {V1PacketTypes} from '../V1PacketTypes.sol';
-import {V1TokenTypes} from '../V1TokenTypes.sol';
+import {V1PacketTypes} from '../types/V1PacketTypes.sol';
+import {V1TokenTypes} from '../types/V1TokenTypes.sol';
+import {V1VaultBatchPayment} from '../types/V1VaultBatchPayment.sol';
+import {V1ChainBatchPayment} from '../types/V1ChainBatchPayment.sol';
+import {V1TokenPayment} from '../types/V1TokenPayment.sol';
 import {INexus} from '../../../nexus/INexus.sol';
 import {BaseVaultV1Controller} from './BaseVaultV1Controller.sol';
 import {IFacetCatalog} from '../../../catalog/IFacetCatalog.sol';
@@ -93,7 +96,8 @@ contract VaultV1Controller is
       V1PacketTypes.CreateVault,
       nexusId,
       innerPayload,
-      transmitUsingGatewayId
+      transmitUsingGatewayId,
+      msg.value
     );
   }
 
@@ -122,7 +126,8 @@ contract VaultV1Controller is
       V1PacketTypes.AddAcceptedGateway,
       nexusId,
       innerPayload,
-      transmitUsingGatewayId
+      transmitUsingGatewayId,
+      msg.value
     );
   }
 
@@ -149,8 +154,30 @@ contract VaultV1Controller is
       V1PacketTypes.SendPayment,
       nexusId,
       innerPayload,
-      transmitUsingGatewayId
+      transmitUsingGatewayId,
+      msg.value
     );
+  }
+
+  function batchSendPayment(
+    V1ChainBatchPayment[] calldata batchPayments
+  ) external payable onlyFacetOwners {
+    bytes32 nexusId = _makeNexusId(msg.sender);
+
+    for (uint i = 0; i < batchPayments.length; i++) {
+      V1ChainBatchPayment calldata batchPayment = batchPayments[i];
+
+      bytes memory payload = abi.encode(batchPayment.vaultPayments);
+
+      _sendPacket(
+        batchPayment.destinationChainId,
+        V1PacketTypes.BatchSendPayment,
+        nexusId,
+        payload,
+        batchPayment.transmitUsingGatewayId,
+        batchPayment.gasFeeAmount
+      );
+    }
   }
 
   function redeemPayment(
@@ -184,7 +211,8 @@ contract VaultV1Controller is
       V1PacketTypes.RedeemPayment,
       tokenRecord.nexusId,
       innerPayload,
-      tokenRecord.gatewayId
+      tokenRecord.gatewayId,
+      msg.value
     );
   }
 
@@ -215,7 +243,8 @@ contract VaultV1Controller is
       V1PacketTypes.BridgeOut,
       nexusId,
       innerPayload,
-      transmitUsingGatewayId
+      transmitUsingGatewayId,
+      msg.value
     );
   }
 
@@ -236,6 +265,10 @@ contract VaultV1Controller is
     }
     if (packetType == V1PacketTypes.SendPayment) {
       _handleSendPayment(nexusId, payload);
+      return;
+    }
+    if (packetType == V1PacketTypes.BatchSendPayment) {
+      _handleBatchSendPayment(nexusId, payload);
       return;
     }
     if (packetType == V1PacketTypes.RedeemPayment) {
@@ -299,6 +332,45 @@ contract VaultV1Controller is
       payable(target.toAddress()),
       amount
     );
+  }
+
+  function _handleBatchSendPayment(
+    bytes32 nexusId,
+    bytes memory payload
+  ) internal {
+    V1VaultBatchPayment[] memory batches = abi.decode(
+      payload,
+      (V1VaultBatchPayment[])
+    );
+
+    for (uint batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+      V1VaultBatchPayment memory batch = batches[batchIndex];
+      uint32 vaultId = batch.vaultId;
+
+      for (
+        uint tokenIndex = 0;
+        tokenIndex < batch.tokenPayments.length;
+        tokenIndex++
+      ) {
+        V1TokenPayment memory tokenPayment = batch.tokenPayments[
+          tokenIndex
+        ];
+
+        uint256 bridgedBalance = nexusVaults[nexusId]
+        .vaults[vaultId]
+        .tokens[tokenPayment.tokenType][tokenPayment.tokenIdentifier]
+          .bridgedBalance;
+
+        bool success = nexusVaults[nexusId]
+          .vaults[vaultId]
+          .vault
+          .batchSendTokens(tokenPayment, bridgedBalance);
+
+        if (!success) {
+          _revertWithAvailableBalanceTooLow(nexusId, vaultId);
+        }
+      }
+    }
   }
 
   function _handleRedeemPayment(
@@ -379,7 +451,8 @@ contract VaultV1Controller is
       V1PacketTypes.MintIOUTokens,
       nexusId,
       abi.encode(vaultId, tokenType, tokenIdentifier, target, amount),
-      destinationGatewayId
+      destinationGatewayId,
+      msg.value
     );
   }
 

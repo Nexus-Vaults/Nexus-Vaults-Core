@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import {V1TokenTypes} from '../V1TokenTypes.sol';
+import {V1TokenTypes} from '../types/V1TokenTypes.sol';
+import {V1ChainBatchPayment} from '../types/V1ChainBatchPayment.sol';
 
 interface IVaultV1Facet {
   function createVaultV1(
@@ -26,6 +27,10 @@ interface IVaultV1Facet {
     string calldata tokenIdentifier,
     string calldata target,
     uint256 amount
+  ) external payable;
+
+  function batchSendPayment(
+    V1ChainBatchPayment[] calldata batchPayments
   ) external payable;
 
   function bridgeOut(

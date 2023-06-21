@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 
 import {INexusGateway} from '../../../gateway/INexusGateway.sol';
 import {VaultV1} from '../VaultV1.sol';
-import {V1TokenTypes} from '../V1TokenTypes.sol';
+import {V1TokenTypes} from '../types/V1TokenTypes.sol';
 import {ERC165Consumer} from '../../../utils/ERC165Consumer.sol';
 
 import {IFacetCatalog} from '../../../catalog/IFacetCatalog.sol';
@@ -117,8 +117,15 @@ abstract contract BaseVaultV1Controller is ERC165Consumer, Ownable {
     );
 
     if (totalBalance - tokenRecord.bridgedBalance < minimumBalance) {
-      revert AvailableBalanceTooLow(nexusId, vaultId);
+      _revertWithAvailableBalanceTooLow(nexusId, vaultId);
     }
+  }
+
+  function _revertWithAvailableBalanceTooLow(
+    bytes32 nexusId,
+    uint32 vaultId
+  ) internal pure {
+    revert AvailableBalanceTooLow(nexusId, vaultId);
   }
 
   function _initializeNexus(bytes32 nexusId, uint32 gatewayId) internal {

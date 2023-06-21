@@ -6,6 +6,7 @@ enum V1PacketTypes {
   CreateVault,
   AddAcceptedGateway,
   SendPayment,
+  BatchSendPayment,
   RedeemPayment,
   BridgeOut,
   MintIOUTokens

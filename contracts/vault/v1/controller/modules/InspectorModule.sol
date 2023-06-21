@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 
 import {BaseVaultV1Controller} from '../BaseVaultV1Controller.sol';
 import {VaultV1} from '../../VaultV1.sol';
-import {V1TokenInfo} from '../../V1TokenInfo.sol';
+import {V1TokenInfo} from '../../types/V1TokenInfo.sol';
 
 error VaultDoesNotExist(bytes32 nexusId, uint256 vaultId);
 

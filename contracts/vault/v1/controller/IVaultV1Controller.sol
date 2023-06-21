@@ -2,7 +2,8 @@
 pragma solidity ^0.8.18;
 
 import {IVaultController} from '../../IVaultController.sol';
-import {V1TokenTypes} from '../V1TokenTypes.sol';
+import {V1TokenTypes} from '../types/V1TokenTypes.sol';
+import {V1ChainBatchPayment} from '../types/V1ChainBatchPayment.sol';
 
 interface IVaultV1Controller is IVaultController {
   function deployVault(
@@ -27,6 +28,10 @@ interface IVaultV1Controller is IVaultController {
     string calldata tokenIdentifier,
     string calldata target,
     uint256 amount
+  ) external payable;
+
+  function batchSendPayment(
+    V1ChainBatchPayment[] calldata batchPayments
   ) external payable;
 
   function bridgeOut(

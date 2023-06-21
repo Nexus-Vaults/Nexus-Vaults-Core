@@ -26,13 +26,14 @@ contract VaultV1Facet is IDiamondFacet, IVaultV1Facet {
   }
 
   function getSelectors() external pure returns (bytes4[] memory) {
-    bytes4[] memory selectors = new bytes4[](5);
+    bytes4[] memory selectors = new bytes4[](6);
 
     selectors[0] = this.createVaultV1.selector;
     selectors[1] = this.addLocalAcceptedGateway.selector;
     selectors[2] = this.addAcceptedGateway.selector;
     selectors[3] = this.sendPayment.selector;
-    selectors[4] = this.bridgeOut.selector;
+    selectors[4] = this.batchSendPayment.selector;
+    selectors[5] = this.bridgeOut.selector;
 
     return selectors;
   }
@@ -122,6 +123,12 @@ contract VaultV1Facet is IDiamondFacet, IVaultV1Facet {
       target,
       amount
     );
+  }
+
+  function batchSendPayment(
+    V1ChainBatchPayment[] calldata batchPayments
+  ) external payable {
+    vaultController.batchSendPayment{value: msg.value}(batchPayments);
   }
 
   function bridgeOut(
