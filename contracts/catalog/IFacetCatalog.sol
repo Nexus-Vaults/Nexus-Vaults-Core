@@ -9,5 +9,9 @@ interface IFacetCatalog {
 
   function purchaseFacet(address facetAddress) external;
 
-  function purchaseFacetFrom(address payer, address facetAddress) external;
+  function purchaseFacetFrom(
+    address payer,
+    address receiver,
+    address facetAddress
+  ) external;
 }

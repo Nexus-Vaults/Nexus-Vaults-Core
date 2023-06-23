@@ -70,14 +70,16 @@ abstract contract BaseVaultV1Controller is ERC165Consumer, Ownable {
   }
 
   modifier onlyFacetOwners() {
-    if (facetCatalog.hasPurchased(msg.sender, facetAddress)) {
+    if (!facetCatalog.hasPurchased(msg.sender, facetAddress)) {
       revert FacetNotInstalled();
     }
     _;
   }
 
   modifier onlyBatchPaymentFacetOwners() {
-    if (facetCatalog.hasPurchased(msg.sender, batchPaymentsFacetAddress)) {
+    if (
+      !facetCatalog.hasPurchased(msg.sender, batchPaymentsFacetAddress)
+    ) {
       revert FacetNotInstalled();
     }
     _;

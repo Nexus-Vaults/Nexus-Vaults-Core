@@ -52,7 +52,11 @@ contract NexusFactory is Ownable {
       FacetInstallation calldata facet = facets[i];
 
       if (facet.catalog != IFacetCatalog(address(0))) {
-        facet.catalog.purchaseFacetFrom(msg.sender, facet.facet);
+        facet.catalog.purchaseFacetFrom(
+          msg.sender,
+          address(nexus),
+          facet.facet
+        );
       }
 
       nexus.installFacet(facet.facet);

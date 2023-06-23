@@ -11,6 +11,7 @@ import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 error FacetNotAvailable();
 error FacetAlreadyAvailable();
 error FeeTransferFailed();
+error FacetAlreadyOwned(address nexusAddress, address facetAddress);
 
 //ToDo: Make ERC1155
 contract FacetCatalog is SimpleERC1155, IFacetCatalog, Ownable {
@@ -18,7 +19,6 @@ contract FacetCatalog is SimpleERC1155, IFacetCatalog, Ownable {
     bool available;
     IERC20 feeToken;
     uint256 feeAmount;
-    mapping(address => bool) hasBought;
   }
 
   event FacetOfferingAdded(
@@ -36,6 +36,7 @@ contract FacetCatalog is SimpleERC1155, IFacetCatalog, Ownable {
   event FacetPurchased(
     address indexed nexus,
     address indexed facetAddress,
+    address indexed payer,
     IERC20 feeToken,
     uint256 feeAmount
   );
@@ -50,6 +51,10 @@ contract FacetCatalog is SimpleERC1155, IFacetCatalog, Ownable {
     _transferOwnership(_treasuryAddress);
   }
 
+  function _makeTokenType(address facetAddress) pure private returns (uint256) {
+    return uint256(keccak256(abi.encodePacked(facetAddress)));
+  }
+
   function hasPurchased(
     address user,
     address facetAddress
@@ -58,14 +63,18 @@ contract FacetCatalog is SimpleERC1155, IFacetCatalog, Ownable {
       revert FacetNotAvailable();
     }
 
-    return offerings[facetAddress].hasBought[user];
+    return balanceOf(user, _makeTokenType(facetAddress)) > 0;
   }
 
   function purchaseFacet(address facetAddress) external {
-    purchaseFacetFrom(msg.sender, facetAddress);
+    purchaseFacetFrom(msg.sender, msg.sender, facetAddress);
   }
 
-  function purchaseFacetFrom(address payer, address facetAddress) public {
+  function purchaseFacetFrom(
+    address payer,
+    address receiver,
+    address facetAddress
+  ) public {
     if (!offerings[facetAddress].available) {
       revert FacetNotAvailable();
     }
@@ -79,17 +88,18 @@ contract FacetCatalog is SimpleERC1155, IFacetCatalog, Ownable {
       revert FeeTransferFailed();
     }
 
-    offerings[facetAddress].hasBought[msg.sender] = true;
-    _mint(
-      msg.sender,
-      uint256(keccak256(abi.encodePacked(facetAddress))),
-      1,
-      ''
-    );
+    uint256 tokenType = _makeTokenType(facetAddress);
+
+    if (balanceOf(receiver, tokenType) != 0) {
+      revert FacetAlreadyOwned(receiver, facetAddress);
+    }
+
+    _mint(receiver, tokenType, 1, '');
 
     emit FacetPurchased(
-      msg.sender,
+      receiver,
       facetAddress,
+      payer,
       offerings[facetAddress].feeToken,
       offerings[facetAddress].feeAmount
     );
