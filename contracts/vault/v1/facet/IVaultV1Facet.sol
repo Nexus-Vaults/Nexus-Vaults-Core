@@ -2,7 +2,6 @@
 pragma solidity ^0.8.18;
 
 import {V1TokenTypes} from '../types/V1TokenTypes.sol';
-import {V1ChainBatchPayment} from '../types/V1ChainBatchPayment.sol';
 
 interface IVaultV1Facet {
   function createVaultV1(
@@ -11,15 +10,15 @@ interface IVaultV1Facet {
     uint32 vaultId
   ) external payable;
 
-  function addLocalAcceptedGateway(uint32 gatewayId) external;
+  function addLocalAcceptedGatewayV1(uint32 gatewayId) external;
 
-  function addAcceptedGateway(
+  function addAcceptedGatewayV1(
     uint16 destinationChainId,
     uint32 transmitUsingGatewayId,
     uint32 gatewayIdToAdd
   ) external payable;
 
-  function sendPayment(
+  function sendPaymentV1(
     uint16 destinationChainId,
     uint32 transmitUsingGatewayId,
     uint32 vaultId,
@@ -29,7 +28,7 @@ interface IVaultV1Facet {
     uint256 amount
   ) external payable;
 
-  function bridgeOut(
+  function bridgeOutV1(
     uint16 targetChainId,
     uint32 transmitUsingGatewayId,
     uint32 vaultId,

@@ -23,10 +23,10 @@ contract VaultV1Facet is IDiamondFacet, IVaultV1Facet {
     bytes4[] memory selectors = new bytes4[](5);
 
     selectors[0] = this.createVaultV1.selector;
-    selectors[1] = this.addLocalAcceptedGateway.selector;
-    selectors[2] = this.addAcceptedGateway.selector;
-    selectors[3] = this.sendPayment.selector;
-    selectors[4] = this.bridgeOut.selector;
+    selectors[1] = this.addLocalAcceptedGatewayV1.selector;
+    selectors[2] = this.addAcceptedGatewayV1.selector;
+    selectors[3] = this.sendPaymentV1.selector;
+    selectors[4] = this.bridgeOutV1.selector;
 
     return selectors;
   }
@@ -69,13 +69,13 @@ contract VaultV1Facet is IDiamondFacet, IVaultV1Facet {
     );
   }
 
-  function addLocalAcceptedGateway(
+  function addLocalAcceptedGatewayV1(
     uint32 gatewayId
   ) external onlyDelegateCall onlyDiamondOwner {
     vaultController.addLocalAcceptedGateway(gatewayId);
   }
 
-  function addAcceptedGateway(
+  function addAcceptedGatewayV1(
     uint16 destinationChainId,
     uint32 transmitUsingGatewayId,
     uint32 gatewayIdToAdd
@@ -87,7 +87,7 @@ contract VaultV1Facet is IDiamondFacet, IVaultV1Facet {
     );
   }
 
-  function sendPayment(
+  function sendPaymentV1(
     uint16 destinationChainId,
     uint32 transmitUsingGatewayId,
     uint32 vaultId,
@@ -107,7 +107,7 @@ contract VaultV1Facet is IDiamondFacet, IVaultV1Facet {
     );
   }
 
-  function bridgeOut(
+  function bridgeOutV1(
     uint16 targetChainId,
     uint32 transmitUsingGatewayId,
     uint32 vaultId,

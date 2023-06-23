@@ -4,9 +4,8 @@ pragma solidity ^0.8.18;
 import {IVaultV1Controller} from './IVaultV1Controller.sol';
 import {V1PacketTypes} from '../types/V1PacketTypes.sol';
 import {V1TokenTypes} from '../types/V1TokenTypes.sol';
-import {V1VaultBatchPayment} from '../types/V1VaultBatchPayment.sol';
-import {V1ChainBatchPayment} from '../types/V1ChainBatchPayment.sol';
-import {V1TokenPayment} from '../types/V1TokenPayment.sol';
+import {V1SendChainBatch} from '../types/send/V1SendChainBatch.sol';
+import {V1SendTokenBatch} from '../types/send/V1SendTokenBatch.sol';
 import {INexus} from '../../../nexus/INexus.sol';
 import {BaseVaultV1Controller} from './BaseVaultV1Controller.sol';
 import {IFacetCatalog} from '../../../catalog/IFacetCatalog.sol';
@@ -161,23 +160,23 @@ contract VaultV1Controller is
     );
   }
 
-  function batchSendPayment(
-    V1ChainBatchPayment[] calldata batchPayments
-  ) external payable onlyBatchPaymentFacetOwners {
+  function batchSend(
+    V1SendChainBatch[] calldata batches
+  ) external payable onlyBatchFacetOwners {
     bytes32 nexusId = _makeNexusId(msg.sender);
 
-    for (uint i = 0; i < batchPayments.length; i++) {
-      V1ChainBatchPayment calldata batchPayment = batchPayments[i];
+    for (uint i = 0; i < batches.length; i++) {
+      V1SendChainBatch calldata batch = batches[i];
 
-      bytes memory payload = abi.encode(batchPayment.vaultPayments);
+      bytes memory payload = abi.encode(batch.vaultPayments);
 
       _sendPacket(
-        batchPayment.destinationChainId,
-        V1PacketTypes.BatchSendPayment,
+        batch.destinationChainId,
+        V1PacketTypes.BatchSend,
         nexusId,
         payload,
-        batchPayment.transmitUsingGatewayId,
-        batchPayment.gasFeeAmount
+        batch.transmitUsingGatewayId,
+        batch.gasFeeAmount
       );
     }
   }
@@ -269,8 +268,8 @@ contract VaultV1Controller is
       _handleSendPayment(nexusId, payload);
       return;
     }
-    if (packetType == V1PacketTypes.BatchSendPayment) {
-      _handleBatchSendPayment(nexusId, payload);
+    if (packetType == V1PacketTypes.BatchSend) {
+      _handleBatchSend(nexusId, gatewayId, payload);
       return;
     }
     if (packetType == V1PacketTypes.RedeemPayment) {
@@ -336,41 +335,48 @@ contract VaultV1Controller is
     );
   }
 
-  function _handleBatchSendPayment(
+  function _handleBatchSend(
     bytes32 nexusId,
+    uint32 gatewayId,
     bytes memory payload
   ) internal {
-    V1VaultBatchPayment[] memory batches = abi.decode(
+    V1SendTokenBatch[] memory batches = abi.decode(
       payload,
-      (V1VaultBatchPayment[])
+      (V1SendTokenBatch[])
     );
 
     for (uint batchIndex = 0; batchIndex < batches.length; batchIndex++) {
-      V1VaultBatchPayment memory batch = batches[batchIndex];
-      uint32 vaultId = batch.vaultId;
+      V1SendTokenBatch memory tokenBatch = batches[batchIndex];
 
-      for (
-        uint tokenIndex = 0;
-        tokenIndex < batch.tokenPayments.length;
-        tokenIndex++
-      ) {
-        V1TokenPayment memory tokenPayment = batch.tokenPayments[
-          tokenIndex
-        ];
-
+      if (tokenBatch.tokenChainId == currentChainId) {
         uint256 bridgedBalance = nexusVaults[nexusId]
-        .vaults[vaultId]
-        .tokens[tokenPayment.tokenType][tokenPayment.tokenIdentifier]
+        .vaults[tokenBatch.vaultId]
+        .tokens[tokenBatch.tokenType][tokenBatch.tokenIdentifier]
           .bridgedBalance;
 
         bool success = nexusVaults[nexusId]
-          .vaults[vaultId]
+          .vaults[tokenBatch.vaultId]
           .vault
-          .batchSendTokens(tokenPayment, bridgedBalance);
+          .batchSendTokens(
+            tokenBatch.tokenType,
+            tokenBatch.tokenIdentifier,
+            tokenBatch.payments,
+            bridgedBalance
+          );
 
         if (!success) {
-          _revertWithAvailableBalanceTooLow(nexusId, vaultId);
+          _revertWithAvailableBalanceTooLow(nexusId, tokenBatch.vaultId);
         }
+      } else {
+        _batchMintIOU(
+          tokenBatch.tokenChainId,
+          gatewayId,
+          nexusId,
+          tokenBatch.vaultId,
+          tokenBatch.tokenType,
+          tokenBatch.tokenIdentifier,
+          tokenBatch.payments
+        );
       }
     }
   }

@@ -4,6 +4,7 @@ pragma solidity ^0.8.18;
 import {V1TokenTypes} from '../../types/V1TokenTypes.sol';
 
 import {IOUToken} from '../../../../iou/IOUToken.sol';
+import {V1Payment} from '../../types/V1Payment.sol';
 
 struct IOUTokenRecord {
   bool isDefined;
@@ -114,6 +115,42 @@ abstract contract IOUTokenModule {
     }
 
     token.mint(receiver, amount);
+  }
+
+  function _batchMintIOU(
+    uint16 vaultChainId,
+    uint32 gatewayId,
+    bytes32 nexusId,
+    uint32 vaultId,
+    V1TokenTypes tokenType,
+    string memory tokenIdentifier,
+    V1Payment[] memory payments
+  ) internal {
+    bytes32 tokenId = _makeTokenId(
+      vaultChainId,
+      gatewayId,
+      nexusId,
+      vaultId,
+      tokenType,
+      tokenIdentifier
+    );
+
+    IOUToken token = recordToToken[tokenId];
+
+    if (address(token) == address(0)) {
+      token = _deployIOU(
+        tokenIdentifier,
+        tokenIdentifier,
+        vaultChainId,
+        gatewayId,
+        nexusId,
+        vaultId,
+        tokenType,
+        tokenIdentifier
+      );
+    }
+
+    token.batchMint(payments);
   }
 
   function _burnIOU(

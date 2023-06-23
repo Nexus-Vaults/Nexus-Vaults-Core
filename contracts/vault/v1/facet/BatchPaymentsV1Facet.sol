@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import {IBatchPaymentsV1Facet} from './IBatchPaymentsV1Facet.sol';
-import {V1ChainBatchPayment} from '../types/V1ChainBatchPayment.sol';
+import {V1SendChainBatch} from '../types/send/V1SendChainBatch.sol';
 import {IDiamondFacet} from '../../../diamond/IDiamondFacet.sol';
 import {IVaultV1Controller} from '../controller/IVaultV1Controller.sol';
 import {LibDiamond} from '../../../diamond/LibDiamond.sol';
@@ -22,7 +22,7 @@ contract BatchPaymentsV1Facet is IDiamondFacet, IBatchPaymentsV1Facet {
   function getSelectors() external pure returns (bytes4[] memory) {
     bytes4[] memory selectors = new bytes4[](1);
 
-    selectors[0] = this.batchSendPayment.selector;
+    selectors[0] = this.batchSendV1.selector;
 
     return selectors;
   }
@@ -49,9 +49,9 @@ contract BatchPaymentsV1Facet is IDiamondFacet, IBatchPaymentsV1Facet {
     _;
   }
 
-  function batchSendPayment(
-    V1ChainBatchPayment[] calldata batchPayments
+  function batchSendV1(
+    V1SendChainBatch[] calldata batches
   ) external payable {
-    vaultController.batchSendPayment{value: msg.value}(batchPayments);
+    vaultController.batchSend{value: msg.value}(batches);
   }
 }
